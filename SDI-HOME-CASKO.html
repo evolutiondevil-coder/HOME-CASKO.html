@@ -1275,6 +1275,8 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
 /* Илюстрации */
 .w-card .art { width: 100%; height: 120px; display: block; overflow: visible; transform-origin: 50% 70%; }
 .w-card .art.art-img { width: 100%; height: 120px; object-fit: contain; max-width: none; user-select: none; -webkit-user-drag: none; }
+.w-card .art.art-img { will-change: transform; backface-visibility: hidden; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .25)); transition: filter .45s cubic-bezier(.2, .8, .2, 1); }
+.w-card:hover .art.art-img, .w-card:focus-visible .art.art-img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .38)) drop-shadow(0 0 14px color-mix(in srgb, var(--accent-on-navy) 22%, transparent)) brightness(1.08); }
 .art .s:not([fill]), .art .a:not([fill]) { fill: none; }
 .art .s { stroke: rgba(255, 255, 255, .92); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .art .thin { stroke-width: 1.1; stroke: rgba(255, 255, 255, .6); }
@@ -1697,7 +1699,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
       </button>
     </div>
   </div>
-  <button type="button" class="w-ver ver-btn" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 3.77 от 17.10.2026<span class="ver-hint">Какво ново?</span></button>
+  <button type="button" class="w-ver ver-btn" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 3.78 от 17.10.2026<span class="ver-hint">Какво ново?</span></button>
   <div class="w-foot">
     <div class="sig" title="Създадено от Borislav Vartigorov">
       <span class="sig-mono" aria-hidden="true"><span>BV</span></span>
@@ -1986,7 +1988,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
 </main>
 
 <footer class="footer">
-  <div class="footer-right"><button type="button" class="ver-btn ver-app" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 3.77 от 17.10.2026<span class="ver-hint">Какво ново?</span></button><span>© 2026 SDI Калкулатор</span>
+  <div class="footer-right"><button type="button" class="ver-btn ver-app" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 3.78 от 17.10.2026<span class="ver-hint">Какво ново?</span></button><span>© 2026 SDI Калкулатор</span>
     <span class="sig sig-sm" title="Създадено от Borislav Vartigorov"><span class="sig-mono" aria-hidden="true"><span>BV</span></span><span class="sig-text"><small>Създадено от</small><span class="credit-name">Borislav Vartigorov</span></span></span>
   </div>
 </footer>
@@ -4465,7 +4467,7 @@ function renderSettings() {
     '<div class="pop-row"><label class="pop-toggle">Начален екран при отваряне<input type="checkbox" class="switch" role="switch" data-act="set-welcome" ' + (settings.welcome ? 'checked' : '') + '></label></div>' +
     '<div class="pop-row"><label class="pop-toggle">Плавни анимации<input type="checkbox" class="switch" role="switch" data-act="set-motion" ' + (settings.motion !== 'off' ? 'checked' : '') + '></label>' +
       (sysReduce ? '<div class="pop-hint">В Windows анимациите са изключени, но в калкулатора остават включени, докато не ги изключите тук.</div>' : '') + '</div>' +
-    '<div class="pop-foot">Настройките се пазят в този браузър. Версия 3.77 от 17.10.2026.</div>');
+    '<div class="pop-foot">Настройките се пазят в този браузър. Версия 3.78 от 17.10.2026.</div>');
   positionThumbs($('settingsPop'));
 }
 function toggleSettings(open) {
@@ -5205,6 +5207,7 @@ function rerender() { renderTab(); }
 
 /* ---------------- Какво ново: последните 10 промени (отваря се от версията долу вдясно) ---------------- */
 const CHANGELOG = [
+  ['3.78', '17.10.2026', 'Начален екран: по-плавно и по-изразително изпъкване на картите при посочване с мишката.'],
   ['3.77', '17.10.2026', 'Начален екран: логото на SDI отново е на прозореца на колата в картата Каско Избор.'],
   ['3.76', '17.10.2026', 'Начален екран: старият шрифт на описанията под картите и по-големи изображения, както преди.'],
   ['3.75', '17.10.2026', 'Начален екран: нови изображения на картите и по-четлив шрифт на описанията, датата и версията.'],
@@ -5213,8 +5216,7 @@ const CHANGELOG = [
   ['3.72', '17.10.2026', 'Каско: нови икони в „Условия и указания“ – обхват, защитни устройства, отстъпки, разминавания, контакти и комплект документи.'],
   ['3.71', '17.10.2026', 'Каско Избор: нови икони в „Условия“ – застраховано МПС, сервиз, защитно устройство, подаръци, оглед, щета, пътна помощ, документи и контакти.'],
   ['3.70', '17.10.2026', 'За дома: нови икони в „Условия“ – документи, важно, отстъпки, велосипеди, изключения, щета и контакти.'],
-  ['3.69', '17.10.2026', 'Какво ново: списък с последните промени при щракване върху версията.'],
-  ['3.68', '17.10.2026', 'Нов ред на разделите: Каско Избор, Каско, Автоасистанс, За дома, Премиум калкулатор.']
+  ['3.69', '17.10.2026', 'Какво ново: списък с последните промени при щракване върху версията.']
 ];
 function toggleChangelog(force) {
   let pop = $('verPop');
@@ -5686,7 +5688,7 @@ function setupWelcomeMotion() {
       st.card.style.zIndex = p > .004 ? '2' : '';
       st.card.style.setProperty('--mx', st.mx.x.toFixed(2) + '%');
       st.card.style.setProperty('--my', st.my.x.toFixed(2) + '%');
-      if (st.art) st.art.style.transform = 'translateY(' + (-4 * p).toFixed(3) + 'px) scale(' + (1 + .06 * p).toFixed(4) + ')';
+      if (st.art) st.art.style.transform = 'translateY(' + ((st.art.tagName === 'IMG' ? -3 : -4) * p).toFixed(3) + 'px) scale(' + (1 + (st.art.tagName === 'IMG' ? .07 : .06) * p).toFixed(4) + ')';
       const r = Math.max(0, st.rate.x);
       for (const a of st.anims) a.playbackRate = r;
     }
