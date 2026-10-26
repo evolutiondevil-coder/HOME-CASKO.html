@@ -1458,14 +1458,23 @@ button.tile.lift:has(.aa-terr-art) .tick { z-index: 2; }
 .disc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
 .disc {
   position: relative; display: flex; justify-content: space-between; align-items: center; gap: 10px;
-  border: 1px solid var(--line); border-radius: 14px; padding: 11px 14px; background: var(--surface); text-align: left; font-weight: 600;
+  border: 1px solid var(--line); border-radius: 14px; padding: 0 0 0 14px; min-height: 46px; overflow: hidden; background: var(--surface); text-align: left; font-weight: 600;
   box-shadow: 0 1px 2px rgba(19, 35, 63, .04);
   transition: border-color var(--t) var(--ease), background-color var(--t) var(--ease), box-shadow .5s var(--ease), transform .5s var(--ease);
 }
 .disc:hover { border-color: var(--line-strong); transform: translateY(-1px); box-shadow: var(--shadow-hover); }
-.disc .pct { font-variant-numeric: tabular-nums; color: var(--ink-3); font-weight: 650; padding: 1px 8px; border-radius: 999px; transition: background-color var(--t) var(--ease), color var(--t) var(--ease); }
+/* Процентът – цветно блокче вдясно; всеки процент има свой цвят, еднакъв навсякъде */
+.disc .pct { align-self: stretch; display: flex; align-items: center; justify-content: center; min-width: 64px; padding: 0 12px; font-variant-numeric: tabular-nums; font-weight: 700;
+  color: var(--pt, #fff); background: var(--pc, var(--surface-3)); transition: background-color var(--t) var(--ease), color var(--t) var(--ease); }
+.disc .pct.pc-5 { --pc: #18A558; }
+.disc .pct.pc-10 { --pc: #FFA45E; --pt: #4A2200; }
+.disc .pct.pc-12 { --pc: #0E9F9A; }
+.disc .pct.pc-15 { --pc: #1D6FE8; }
+.disc .pct.pc-20 { --pc: #7C4DDB; }
+.disc .pct.pc-30 { --pc: #E0306A; }
+.disc .pct.pc-x { --pc: #5B6478; }
+.disc .pct.pc-0 { --pt: var(--ink-3); }
 .disc[aria-checked="true"] { border-color: var(--accent); background-color: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
-.disc[aria-checked="true"] .pct { color: var(--on-accent); background: var(--accent); }
 .disc .pct:empty { display: none; }
 .custom-pct { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
 .custom-pct .input { width: 110px; text-align: right; }
@@ -5963,8 +5972,10 @@ function renderHome() {
 /* ================================================================
    ПРЕМИУМ КАЛКУЛАТОР
    ================================================================ */
+/* Клас за цвета на процента: известните проценти имат свой цвят, останалите – общ */
+const pctCls = n => { n = parseFloat(String(n).replace(',', '.')); return !n ? 'pc-0' : [5, 10, 12, 15, 20, 30].includes(n) ? 'pc-' + n : 'pc-x'; };
 function discBtn(d, cur) {
-  return '<button class="disc" role="radio" aria-checked="' + (cur === d.id) + '" data-act="prem-disc" data-val="' + d.id + '" data-fk="pd-' + d.id + '"><span>' + d.name + '</span><span class="pct">' + (d.pct ? '−' + d.pct + '%' : '') + '</span></button>';
+  return '<button class="disc" role="radio" aria-checked="' + (cur === d.id) + '" data-act="prem-disc" data-val="' + d.id + '" data-fk="pd-' + d.id + '"><span>' + d.name + '</span><span class="pct ' + pctCls(d.pct) + '">' + (d.pct ? '−' + d.pct + '%' : '') + '</span></button>';
 }
 function renderPremDiscounts() {
   const s = state.prem;
@@ -5973,7 +5984,7 @@ function renderPremDiscounts() {
     '<div class="disc-group"><div class="disc-title">' + ci('p-d0', 'xs') + 'Лични отстъпки</div><div class="disc-grid" role="radiogroup" aria-label="Лични отстъпки">' + PREM_DISCOUNTS.personal.map(d => discBtn(d, s.disc)).join('') + '</div></div>' +
     '<div class="disc-group"><div class="disc-title">' + ci('p-d1', 'xs') + 'Друго</div><div class="disc-grid">' +
       discBtn({ id: 'none', name: 'Без отстъпка', pct: 0 }, s.disc) +
-      '<button class="disc" role="radio" aria-checked="' + (s.disc === 'custom') + '" data-act="prem-disc" data-val="custom" data-fk="pd-custom"><span>Друг процент</span><span class="pct">' + (s.customPct ? '−' + esc(s.customPct) + '%' : '%') + '</span></button>' +
+      '<button class="disc" role="radio" aria-checked="' + (s.disc === 'custom') + '" data-act="prem-disc" data-val="custom" data-fk="pd-custom"><span>Друг процент</span><span class="pct ' + pctCls(s.customPct) + '">' + (s.customPct ? '−' + esc(s.customPct) + '%' : '%') + '</span></button>' +
     '</div>' +
     (s.disc === 'custom' ? '<div class="custom-pct"><label for="customPct" style="font-weight:600;color:var(--ink-2);font-size:14px">Отстъпка</label><input class="input num" id="customPct" inputmode="decimal" placeholder="0" value="' + esc(s.customPct) + '" data-act="prem-custom"><span style="color:var(--ink-3)">%</span></div>' : '') +
     '</div>');
