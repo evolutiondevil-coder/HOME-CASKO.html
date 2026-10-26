@@ -354,6 +354,15 @@ svg.i.lg { width: 24px; height: 24px; }
 }
 .btn:hover { border-color: var(--line-strong); box-shadow: var(--shadow-hover); transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
+/* Бутон „Изчисти“: коралово хапче с 3D стрелка и меко сияние – еднакъв във всички секции */
+.btn.btn-clear { border: none; border-radius: 999px; padding: 7px 20px 7px 11px; gap: 9px; font-size: 15.5px; font-weight: 750; color: #13233F;
+  background: linear-gradient(180deg, #FF9F86, #F3735B);
+  box-shadow: 0 0 0 4px rgba(255, 168, 140, .3), inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -2px 4px rgba(190, 60, 40, .22), 0 8px 18px -8px rgba(232, 90, 60, .65); }
+.btn.btn-clear::before { content: ""; width: 28px; height: 28px; flex: none; background: url('data:image/webp;base64,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') center / contain no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(150, 40, 20, .25)); transition: transform .5s var(--ease); }
+.btn.btn-clear:hover { box-shadow: 0 0 0 5px rgba(255, 168, 140, .38), inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -2px 4px rgba(190, 60, 40, .22), 0 10px 22px -8px rgba(232, 90, 60, .75); filter: brightness(1.03); }
+.btn.btn-clear:hover::before { transform: rotate(-30deg); }
+.btn.btn-clear:focus-visible { outline: 2px solid #F3735B; outline-offset: 5px; }
 .btn-accent { background: var(--accent); color: var(--on-accent); border-color: transparent; }
 .btn-accent:hover { border-color: transparent; filter: brightness(1.05); }
 
@@ -2383,7 +2392,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
         <h1 class="page-title"><span class="ci lg" data-ci="p-home"></span>За дома</h1>
         <p class="page-sub one-line">Съвместен продукт на <img class="sdi-logo sdi-inline" alt="SDI"> и <span class="ins-inline"><span id="homeInsLogo"></span><span class="sr-only">Булстрад</span></span>. Годишни цени в евро, без 2% данък върху премията.</p>
       </div>
-      <button class="btn" data-act="home-reset"><span data-icon="reset"></span>Изчисти</button>
+      <button class="btn btn-clear" data-act="home-reset">Изчисти</button>
     </div>
     <div class="layout">
       <div class="col">
@@ -2414,7 +2423,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
         <h1 class="page-title"><span class="ci lg" data-ci="p-casco"></span>Каско Избор</h1>
         <p class="page-sub">Пълно каско без самоучастие. Тарифите са в евро, без 2% данък върху премията.</p>
       </div>
-      <button class="btn" data-act="casco-reset"><span data-icon="reset"></span>Изчисти</button>
+      <button class="btn btn-clear" data-act="casco-reset">Изчисти</button>
     </div>
     <div class="layout">
       <div class="col">
@@ -2470,7 +2479,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
         <h1 class="page-title"><span class="ci lg" data-ci="p-kasko"></span>Каско</h1>
         <p class="page-sub">Каско за всички видове МПС при шест компании: от леки автомобили и мотори до тежкотоварни, ремаркета и техника. Попълнете данните веднъж и сравнете цените по тарифите.</p>
       </div>
-      <button class="btn" data-kact="reset"><span data-icon="reset"></span>Изчисти</button>
+      <button class="btn btn-clear" data-kact="reset">Изчисти</button>
     </div>
     <div class="layout">
       <div class="col">
@@ -2559,7 +2568,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
         <h1 class="page-title"><span class="ci lg" data-ci="p-assist"></span>Автоасистанс</h1>
         <p class="page-sub">Самостоятелна застраховка за пътна помощ, отделно от Каско и За дома. Сключва се за една година и се плаща еднократно.</p>
       </div>
-      <button class="btn" data-act="assist-reset"><span data-icon="reset"></span>Изчисти</button>
+      <button class="btn btn-clear" data-act="assist-reset">Изчисти</button>
     </div>
     <div class="layout">
       <div class="col">
@@ -2594,7 +2603,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
         <h1 class="page-title"><span class="ci lg" data-ci="p-med"></span>Медицински</h1>
         <p class="page-sub" id="mSub">Помощ при пътуване в чужбина при седем компании. Попълнете пътуването и пътуващите веднъж и сравнете цените по тарифите.</p>
       </div>
-      <button class="btn" data-mact="reset"><span data-icon="reset"></span>Изчисти</button>
+      <button class="btn btn-clear" data-mact="reset">Изчисти</button>
     </div>
     <div class="m-subnav" id="mSubnav"></div>
     <div class="layout">
@@ -2696,7 +2705,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
         <h1 class="page-title"><span class="ci lg" data-ci="p-prem"></span>Премиум калкулатор</h1>
         <p class="page-sub">Бърза сметка на премия с отстъпка и 2% данък.</p>
       </div>
-      <button class="btn" data-act="prem-reset"><span data-icon="reset"></span>Изчисти</button>
+      <button class="btn btn-clear" data-act="prem-reset">Изчисти</button>
     </div>
     <div class="layout">
       <div class="col">
