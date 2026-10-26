@@ -2372,7 +2372,6 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
       <button class="tab" role="tab" id="tab-prem" aria-controls="view-prem" data-act="tab" data-val="prem"><span class="ci tab-ci" data-ci="p-prem"></span><span>Калкулатор</span></button>
     </nav>
     <div class="tools">
-      <button class="icon-btn hide-sm" id="bgnBtn" data-act="bgn" aria-pressed="false" title="Показвай сумите и в лева">лв.</button>
       <button class="icon-btn" id="zoomBtn" aria-expanded="false" aria-haspopup="dialog" title="Мащаб на екрана"><span data-icon="monitor"></span><span class="zoom-badge" id="zoomBadge" aria-hidden="true"></span></button>
       <button class="icon-btn" id="themeBtn" data-act="theme-toggle" title="Светла или тъмна тема"><span data-icon="moon"></span></button>
       <button class="icon-btn" id="setBtn" data-act="settings" aria-expanded="false" aria-haspopup="dialog" title="Настройки"><span data-icon="sliders"></span></button>
@@ -2727,7 +2726,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
           <div class="step-head"><span class="step-no">3</span><h2 class="step-title">Данък</h2></div>
           <div class="step-body" id="p-tax"></div>
         </section>
-        <section class="step" id="p-conv">
+        <section class="step lv-keep" id="p-conv">
           <div class="step-head"><span class="ci sm step-ci" data-ci="p-d2"></span><h2 class="step-title">Превалутиране</h2><span class="step-hint">Фиксиран курс 1 € = 1,95583 лв.</span></div>
           <div class="step-body">
             <div class="conv">
@@ -2798,9 +2797,14 @@ function fmtCents(c) {
   const s = groupThousands(String(Math.floor(c / 100))) + ',' + String(c % 100).padStart(2, '0');
   return (neg ? '−' : '') + s;
 }
-const eur = c => fmtCents(c) + NBSP + '€';
+/* Режим „само в лева“ (Настройки): всички суми се показват и въвеждат в лева.
+   Изчисленията остават в евроцентове; режимът не се пази – при отваряне сумите са в евро. */
+let lvMode = false;
+const showC = c => (lvMode ? Math.round(c * RATE) : c);                        // евроцентове → центове във валутата на екрана
+const inC = str => { const c = parseMoney(str); return c == null ? null : (lvMode ? Math.round(c / RATE) : c); };   // въведено → евроцентове
+const eur = c => fmtCents(showC(c)) + NBSP + (lvMode ? 'лв.' : '€');
 const bgn = c => fmtCents(Math.round(c * RATE)) + NBSP + 'лв.';
-const intEur = e => groupThousands(String(e)) + NBSP + '€';
+const intEur = e => (lvMode ? intBgn(e) : groupThousands(String(e)) + NBSP + '€');
 const intBgn = e => fmtCents(Math.round(e * 100 * RATE)) + NBSP + 'лв.';
 
 /** Чете сума, написана с точка или запетая ("1 234,56", "1234.5"). Връща центове или null. */
@@ -3166,7 +3170,7 @@ function findPremDiscount(id) {
 
 function calcPrem(s) {
   const m = { kind: 'prem', product: 'Премиум калкулатор', title: 'Изчисление', lines: [], params: [], notes: [], net: 0, tax: 0, total: 0, n: 1, parts: [0] };
-  const amount = parseMoney(s.amount);
+  const amount = inC(s.amount);
   if (!amount) {
     m.empty = true;
     m.emptyTitle = 'Въведете премия';
@@ -3296,7 +3300,7 @@ function offerText(m, opts) {
   for (const l of m.lines) L.push(l.label + (l.sub ? ' (' + l.sub + ')' : '') + ': ' + (l.kind === 'pos' ? '+' : '') + eur(l.amount));
   if (m.taxOn) L.push('Данък върху премията 2%: ' + eur(m.tax));
   for (const l of m.after || []) L.push(l.label + (l.sub ? ' (' + l.sub + ')' : '') + ': ' + (l.amount > 0 ? '+' : '') + eur(l.amount));
-  L.push('КРАЙНА ПРЕМИЯ: ' + eur(m.total) + (opts.bgn ? ' (' + bgn(m.total) + ')' : ''));
+  L.push('КРАЙНА ПРЕМИЯ: ' + eur(m.total));
   if (m.kind === 'assist') {
     L.push('Плащане: ' + (!m.payText || m.payText === 'Еднократно плащане' ? 'еднократно' : m.payText.toLowerCase()));
     if (m.taxIncluded) L.push('Цената е с включен 2% данък върху премията.');
@@ -5333,10 +5337,6 @@ const ordinal = i => (i + 1) + ['-ва', '-ра', '-та', '-та'][Math.min(i, 
 
 /* ---------------- Настройки ---------------- */
 const SETTINGS_KEY = 'sdi-calc-settings';
-/* Левовете се включват отделно за всяка страница и не се пазят – при отваряне са изключени */
-const bgnTabs = {};
-const bgnOn = () => !!bgnTabs[state.tab];
-const lv = c => (bgnOn() ? '<small class="lv">' + bgn(c) + '</small>' : '');
 const settings = Object.assign({ theme: 'system', accent: 'orange', showBgn: false, welcome: true, lastTab: 'casco', motion: 'on', zoomMode: 'auto', zoom: 1 }, (() => {
   try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); } catch (e) { return {}; }
 })());
@@ -5369,7 +5369,8 @@ function renderSettings() {
     '<div class="pop-row"><div class="pop-label">Цвят на акцента</div><div class="swatches" role="radiogroup" aria-label="Цвят на акцента">' +
       ACCENTS.map(a => '<button class="swatch" role="radio" aria-checked="' + (settings.accent === a.id) + '" title="' + a.name + '" aria-label="' + a.name + '" style="--sw:' + a.c + '" data-act="set-accent" data-val="' + a.id + '" data-fk="ac-' + a.id + '"></button>').join('') +
     '</div></div>' +
-    '<div class="pop-row"><label class="pop-toggle">Показвай сумите и в лева<input type="checkbox" class="switch" role="switch" data-act="set-bgn" ' + (bgnOn() ? 'checked' : '') + '></label></div>' +
+    '<div class="pop-row"><label class="pop-toggle">Показвай сумите в лева<input type="checkbox" class="switch" role="switch" data-act="set-bgn" ' + (lvMode ? 'checked' : '') + '></label>' +
+      '<div class="pop-hint">Всички суми навсякъде се показват и въвеждат само в лева. При изключване и при всяко отваряне – отново в евро.</div></div>' +
     '<div class="pop-row"><label class="pop-toggle">Начален екран при отваряне<input type="checkbox" class="switch" role="switch" data-act="set-welcome" ' + (settings.welcome ? 'checked' : '') + '></label></div>' +
     '<div class="pop-row"><label class="pop-toggle">Плавни анимации<input type="checkbox" class="switch" role="switch" data-act="set-motion" ' + (settings.motion !== 'off' ? 'checked' : '') + '></label>' +
       (sysReduce ? '<div class="pop-hint">В Windows анимациите са изключени, но в калкулатора остават включени, докато не ги изключите тук.</div>' : '') + '</div>' +
@@ -5464,24 +5465,24 @@ function quoteHTML(m) {
   }
   h += '<ul class="q-lines">';
   for (const l of m.lines) {
-    h += '<li class="q-line' + (l.kind ? ' ' + l.kind : '') + '" data-k="ql-' + esc(String(l.label).replace(/<[^>]+>/g, '')) + '"><span class="lbl">' + l.label + (l.sub ? '<small>' + l.sub + '</small>' : '') + '</span><span class="dots"></span><span class="amt">' + (l.amount > 0 && l.kind === 'pos' ? '+' : '') + eur(l.amount) + lv(l.amount) + '</span></li>';
+    h += '<li class="q-line' + (l.kind ? ' ' + l.kind : '') + '" data-k="ql-' + esc(String(l.label).replace(/<[^>]+>/g, '')) + '"><span class="lbl">' + l.label + (l.sub ? '<small>' + l.sub + '</small>' : '') + '</span><span class="dots"></span><span class="amt">' + (l.amount > 0 && l.kind === 'pos' ? '+' : '') + eur(l.amount) + '</span></li>';
   }
   if (!m.taxIncluded && (m.lines.length > 1 || m.taxOn)) {
-    h += '<li class="q-line subtotal" data-k="ql-net"><span class="lbl">Премия без данък</span><span class="dots"></span><span class="amt">' + eur(m.net) + lv(m.net) + '</span></li>';
+    h += '<li class="q-line subtotal" data-k="ql-net"><span class="lbl">Премия без данък</span><span class="dots"></span><span class="amt">' + eur(m.net) + '</span></li>';
   }
-  if (m.taxOn) h += '<li class="q-line" data-k="ql-tax"><span class="lbl">Данък върху премията 2%</span><span class="dots"></span><span class="amt">' + eur(m.tax) + lv(m.tax) + '</span></li>';
-  if (m.after) for (const l of m.after) h += '<li class="q-line' + (l.kind ? ' ' + l.kind : '') + '" data-k="qa-' + esc(l.label) + '"><span class="lbl">' + l.label + (l.sub ? '<small>' + l.sub + '</small>' : '') + '</span><span class="dots"></span><span class="amt">' + (l.amount > 0 ? '+' : '') + eur(l.amount) + lv(l.amount) + '</span></li>';
+  if (m.taxOn) h += '<li class="q-line" data-k="ql-tax"><span class="lbl">Данък върху премията 2%</span><span class="dots"></span><span class="amt">' + eur(m.tax) + '</span></li>';
+  if (m.after) for (const l of m.after) h += '<li class="q-line' + (l.kind ? ' ' + l.kind : '') + '" data-k="qa-' + esc(l.label) + '"><span class="lbl">' + l.label + (l.sub ? '<small>' + l.sub + '</small>' : '') + '</span><span class="dots"></span><span class="amt">' + (l.amount > 0 ? '+' : '') + eur(l.amount) + '</span></li>';
   h += '</ul>';
   const lbl = (m.n > 1 ? 'Крайна обща премия' : 'Крайна премия') + (m.taxIncluded ? ', с включен данък 2%' : (m.taxOn ? '' : ', без данък'));
   h += '<div class="q-total-wrap"><div class="q-total-lbl">' + lbl + '</div>' +
-    '<div class="q-total" data-total="' + m.total + '">' + fmtCents(m.total) + '<span class="cur">€</span></div>' +
-    (bgnOn() ? '<div class="q-bgn">' + bgn(m.total) + '</div>' : '') + '</div>';
+    '<div class="q-total" data-total="' + m.total + '">' + fmtCents(showC(m.total)) + '<span class="cur">€</span></div>' +
+    '</div>';
   if (m.kind === 'assist') {
     h += '<div class="q-inst"><div class="q-inst-lbl">' + (m.payText || 'Еднократно плащане') + '</div></div>';
   } else if (m.kind !== 'prem') {
     if (m.n > 1) {
       h += '<div class="q-inst"><div class="q-inst-lbl">' + m.n + ' вноски без оскъпяване</div><div class="q-inst-bar" style="grid-template-columns:repeat(' + m.n + ',minmax(0,1fr))">' +
-        m.parts.map((p, i) => '<div class="q-inst-seg"><small>' + ordinal(i) + (i === 0 ? ', днес' : '') + '</small><b>' + eur(p) + '</b>' + lv(p) + '</div>').join('') + '</div></div>';
+        m.parts.map((p, i) => '<div class="q-inst-seg"><small>' + ordinal(i) + (i === 0 ? ', днес' : '') + '</small><b>' + eur(p) + '</b>' + '</div>').join('') + '</div></div>';
     } else {
       h += '<div class="q-inst"><div class="q-inst-lbl">Еднократно плащане</div></div>';
     }
@@ -5509,10 +5510,10 @@ function renderQuote(elId, m) {
     const step = now => {
       const k = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - k, 3);
       st.shown = Math.round(from + (to - from) * e);
-      if (txt && txt.nodeType === 3) txt.nodeValue = fmtCents(st.shown);
+      if (txt && txt.nodeType === 3) txt.nodeValue = fmtCents(showC(st.shown));
       st.raf = k < 1 ? requestAnimationFrame(step) : 0;
     };
-    if (txt && txt.nodeType === 3) txt.nodeValue = fmtCents(from);
+    if (txt && txt.nodeType === 3) txt.nodeValue = fmtCents(showC(from));
     st.raf = requestAnimationFrame(step);
   } else if (tw && tw.raf) { cancelAnimationFrame(tw.raf); tw.raf = 0; }
   lastTotals[key] = m.empty ? null : m.total;
@@ -5534,7 +5535,7 @@ function cascoServiceFor(s) {
   return s.service === 'official' && !officialAvailable(s.company, s.sum) ? 'trusted' : s.service;
 }
 const TAG_EMOJI = { 'Гуми': '🛞', 'Самоучастие': '🤝', 'Офиц.': '🛠️', 'Официален': '🛠️', 'Видео': '📹', '2': '💳', 'До': '💳', 'Нови': '🚗', 'Десен': '🔄' };
-const kShort = v => (Math.round(v / 100) / 10).toString().replace('.', ',') + 'k';
+const kShort = v => (Math.round((lvMode ? v * RATE : v) / 100) / 10).toString().replace('.', ',') + 'k';
 function renderCompanies() {
   const s = state.casco;
   morph($('c-companies'), CASCO.order.map(k => {
@@ -5561,7 +5562,7 @@ function renderSum() {
   step.classList.toggle('done', !!(k && s.sum));
   const input = $('sumInput'), range = $('sumRange');
   input.disabled = !k; range.disabled = !k;
-  if (document.activeElement !== input) input.value = s.sum ? groupThousands(String(s.sum)) : '';
+  if (document.activeElement !== input) input.value = sumTxt(s.sum);
   input.placeholder = k ? '0' : 'Изберете компания';
   const idx = Math.max(0, sums.indexOf(s.sum));
   range.max = Math.max(0, sums.length - 1);
@@ -5569,14 +5570,13 @@ function renderSum() {
   range.style.setProperty('--p', (sums.length > 1 ? idx / (sums.length - 1) * 100 : 0) + '%');
   $('sumTrack').style.setProperty('--sp', sums.length > 1 ? idx / (sums.length - 1) : 0);
   $('sumTrack').style.setProperty('--n', Math.max(1, sums.length - 1));
-  $('sumBubble').textContent = s.sum ? groupThousands(String(s.sum)) : '';
+  $('sumBubble').textContent = sumTxt(s.sum);
   updateCarStage(s.sum, sums.length > 1 ? idx / (sums.length - 1) : 0, !!(k && s.sum));
   range.setAttribute('aria-valuetext', s.sum ? intEur(s.sum) : '');
   $('sumMinus').disabled = !k || idx <= 0;
   $('sumPlus').disabled = !k || idx >= sums.length - 1;
   $('sumMin').textContent = k ? 'от ' + intEur(sums[0]) : '';
   $('sumMax').textContent = k ? 'до ' + intEur(sums[sums.length - 1]) : '';
-  $('sumBgn').textContent = k && s.sum && bgnOn() ? intBgn(s.sum) : '';
   $('c-sum-hint').textContent = !k ? '' : (k === 'generali' ? 'Фиксирани суми по тарифата' : 'Стъпка 500\u00A0€');
   $('sumNote').innerHTML = s.note ? '<div class="sum-note">' + s.note + '</div>' : '';
   renderCompare();
@@ -5715,8 +5715,8 @@ function tariffTableHTML(s) {
   let h = '<div class="ttable-wrap"><table class="ttable"><thead><tr><th>Сума</th><th>Експертна</th><th>с КК SDI</th><th>Доверен сервиз</th><th>с КК SDI</th></tr></thead><tbody>';
   for (const r of CASCO.rows[s.company]) {
     h += '<tr data-act="set-sum" data-val="' + r.sum + '"' + (r.sum === s.sum ? ' class="is-current"' : '') + '><td>' + intEur(r.sum) + '</td>' +
-      '<td class="' + on(false, false) + '">' + fmtCents(r.eB) + '</td><td class="' + on(false, true) + '">' + fmtCents(r.eS) + '</td>' +
-      '<td class="' + on(true, false) + '">' + fmtCents(r.tB) + '</td><td class="' + on(true, true) + '">' + fmtCents(r.tS) + '</td></tr>';
+      '<td class="' + on(false, false) + '">' + fmtCents(showC(r.eB)) + '</td><td class="' + on(false, true) + '">' + fmtCents(showC(r.eS)) + '</td>' +
+      '<td class="' + on(true, false) + '">' + fmtCents(showC(r.tB)) + '</td><td class="' + on(true, true) + '">' + fmtCents(showC(r.tS)) + '</td></tr>';
   }
   return h + '</tbody></table></div>';
 }
@@ -5800,7 +5800,7 @@ function renderExtras() {
       body: '<div class="tyre-grid" role="radiogroup" aria-label="Лимит за гуми">' + TYRES.map((t, i) =>
         '<button class="tyre" role="radio" aria-checked="' + (i === s.tyreIdx) + '" data-act="tyre" data-val="' + i + '" data-fk="ty-' + i + '">' +
           '<b>' + intEur(t.lim) + '</b><small>до ' + intEur(t.per) + ' за гума</small>' +
-          '<span class="p">' + (s.card ? '<s>' + fmtCents(t.std) + '</s>' + eur(t.card) : eur(t.std)) + '</span>' +
+          '<span class="p">' + (s.card ? '<s>' + fmtCents(showC(t.std)) + '</s>' + eur(t.card) : eur(t.std)) + '</span>' +
         '</button>').join('') + '</div>' +
         '<div class="note">Протектор поне 2 мм за летни, 3 мм за всесезонни и 4 мм за зимни гуми. Всички гуми със знак „Е“.</div>'
     }));
@@ -5936,9 +5936,9 @@ function renderMatrix() {
   h += '<tr class="total-row group-sep"><td><span class="row-lbl">' + homeRowIco(9, 'cov-ico') + '<strong>Обща застрахователна сума</strong></span></td>';
   for (let i = 0; i < 4; i++) h += td(i, intEur(HOME.totals[i]));
   h += '</tr><tr class="price-row"><td><span class="row-lbl">' + homeRowIco(10, 'cov-ico') + 'Цена за клиенти на SDI</span></td>';
-  for (let i = 0; i < 4; i++) h += td(i, eur(HOME.prices[i].std) + (bgnOn() ? '<small style="display:block;color:var(--ink-3);font-weight:500;font-size:12px">' + bgn(HOME.prices[i].std) + '</small>' : ''));
+  for (let i = 0; i < 4; i++) h += td(i, eur(HOME.prices[i].std));
   h += '</tr><tr class="price-row card-row"><td><span class="row-lbl">' + ci('card', 'xs') + 'С клубна карта SDI, −10%</span></td>';
-  for (let i = 0; i < 4; i++) h += td(i, eur(HOME.prices[i].card) + (bgnOn() ? '<small style="display:block;color:var(--ink-3);font-weight:500;font-size:12px">' + bgn(HOME.prices[i].card) + '</small>' : ''));
+  for (let i = 0; i < 4; i++) h += td(i, eur(HOME.prices[i].card));
   h += '</tr></tbody></table></div>';
   h += '<div class="feature-list">' + HOME_FEATURES.map(f => '<div class="feature">' + ci(f.icon, 'sm') + '<div><b>' + f.title + '</b>' + f.text + '</div></div>').join('') + '</div>';
   morph($('h-matrix'), h);
@@ -6218,7 +6218,6 @@ function positionTabThumb() {
   nav.classList.add('has-thumb');
 }
 function renderTab() {
-  $('bgnBtn').setAttribute('aria-pressed', String(bgnOn()));
   for (const t of TABS) {
     $('view-' + t).hidden = t !== state.tab;
     const b = $('tab-' + t);
@@ -6240,6 +6239,48 @@ function setTab(t) {
   renderTab();
 }
 function rerender() { renderTab(); }
+
+/* Текстове със суми в евро (условия, бележки, лимити) – в режим „само в лева“ се превръщат на място
+   и се връщат точно каквито са били при изключване. Превалутирането (.lv-keep) не се пипа. */
+const LV_RE = /(\d{1,3}(?:[ \u00A0\u202F]\d{3})+|\d+)(?:,(\d{1,2}))?[ \u00A0\u202F]?€/g;
+const lvText = t => t.replace(LV_RE, (m, i, f) => bgn(+i.replace(/\D/g, '') * 100 + (f ? +f.padEnd(2, '0') : 0)));
+const lvDone = new Map();   // текстов възел → [оригинал, превърнат]
+function lvNode(n) {
+  const d = n.nodeValue;
+  if (d.indexOf('€') < 0) return;
+  const p = n.parentElement;
+  if (!p || p.closest('script, style, .lv-keep')) return;
+  const v = d.trim() === '€' ? d.replace('€', 'лв.') : lvText(d);
+  if (v !== d) { lvDone.set(n, [d, v]); n.nodeValue = v; }
+}
+function lvSweep(root) {
+  if (root.nodeType === 3) return lvNode(root);
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let n = w.nextNode(); n; n = w.nextNode()) lvNode(n);
+  if (lvDone.size > 4000) for (const n of lvDone.keys()) if (!n.isConnected) lvDone.delete(n);
+}
+new MutationObserver(recs => {
+  if (!lvMode) return;
+  for (const r of recs) {
+    if (r.type === 'characterData') lvNode(r.target);
+    else r.addedNodes.forEach(n => { if (n.nodeType === 1 || n.nodeType === 3) lvSweep(n); });
+  }
+}).observe(document.body, { childList: true, subtree: true, characterData: true });
+function setLv(on) {
+  if (on === lvMode) return;
+  const prem = inC(state.prem.amount);                    // въведените суми се пазят в евро и се показват наново
+  lvMode = on;
+  if (prem) { state.prem.amount = fmtCents(showC(prem)); $('premAmount').value = state.prem.amount; }
+  for (const o of Object.values(state.med.ex || {})) if (o && o.tripPrice) o.tripPriceTxt = kSumTxt(showC(Math.round(o.tripPrice * 100)));
+  const ks = $('kSum'); if (ks) ks.value = kSumShow(state.kasko.sum);
+  document.documentElement.classList.toggle('lv-mode', on);
+  if (on) lvSweep(document.body);
+  else { for (const [n, [d, v]] of lvDone) if (n.isConnected && n.nodeValue === v) n.nodeValue = d; lvDone.clear(); }
+  infoRenderedFor = aaInfoFor = kDocsKey = mInfoKey = tInfoKey = undefined; homeInfoDone = false;   // кешираните части се рисуват наново
+  for (const k in lastTotals) lastTotals[k] = null;
+  rerender();
+  if (!$('settingsPop').hidden) withFocus(renderSettings);
+}
 
 /* ---------------- Какво ново: последните 10 промени (отваря се от версията долу вдясно) ---------------- */
 const CHANGELOG = [
@@ -6335,7 +6376,7 @@ function toast(text) {
 async function copyOffer() {
   const m = currentModel();
   if (m.empty) return;
-  const text = offerText(m, { bgn: bgnOn() });
+  const text = lvMode ? lvText(offerText(m, {})) : offerText(m, {});
   let ok = false;
   try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
     const ta = document.createElement('textarea');
@@ -6370,7 +6411,7 @@ function printOffer() {
     '<div class="ps-top-d"><span>Дата на офертата</span><b>' + date + '</b></div></header>';
   h += '<section class="ps-hero">' + (coLogo ? '<div class="ps-co-card">' + coLogo + '</div>' : '') +
     '<div class="ps-hero-t"><small>' + m.product + '</small><h1>' + title + '</h1><span class="ps-pay">' + pay + '</span></div>' +
-    '<div class="ps-total"><small>' + totLbl + '</small><b>' + eur(m.total) + '</b>' + (bgnOn() ? '<span>' + bgn(m.total) + '</span>' : '') + '</div></section>';
+    '<div class="ps-total"><small>' + totLbl + '</small><b>' + eur(m.total) + '</b>' + '</div></section>';
   // Изчисление
   let calc = m.lines.map(l => row(lbl(l), (l.kind === 'pos' ? '+' : '') + eur(l.amount), l.kind)).join('');
   if (!m.taxIncluded && (m.lines.length > 1 || m.taxOn)) calc += row('Премия без данък', eur(m.net), 'sub');
@@ -6474,7 +6515,6 @@ function handleAction(act, val, el) {
     case 'settings': toggleSettings(); return;
     case 'set-theme': settings.theme = val; saveSettings(); applyTheme(); withFocus(renderSettings); return;
     case 'set-accent': settings.accent = val; saveSettings(); applyTheme(); withFocus(renderSettings); return;
-    case 'bgn': bgnTabs[state.tab] = !bgnOn(); rerender(); if (!$('settingsPop').hidden) withFocus(renderSettings); return;
     case 'copy': copyOffer(); return;
     case 'print': printOffer(); return;
     case 'scroll-quote': {
@@ -6533,7 +6573,7 @@ function handleChange(act, el) {
     case 'home-toggle': h[el.dataset.val] = el.checked; break;
     case 'prem-toggle': p[el.dataset.val] = el.checked; break;
     case 'aa-toggle': state.assist[el.dataset.val] = el.checked; break;
-    case 'set-bgn': bgnTabs[state.tab] = el.checked; break;
+    case 'set-bgn': setLv(el.checked); return;
     case 'set-welcome': settings.welcome = el.checked; saveSettings(); return;
     case 'set-motion': settings.motion = el.checked ? 'on' : 'off'; reduceMotion = settings.motion === 'off'; saveSettings(); applyTheme(); return;
     case 'zu-brand': state.zu.brand = el.value; state.zu.model = ''; refreshZu(); return;
@@ -6596,21 +6636,24 @@ document.addEventListener('pointerup', flushPending, true);
 document.addEventListener('pointercancel', flushPending, true);
 function safeRender(fn) { if (pointerDown) pendingRender = fn; else fn(); }
 
+/* Цели евро ↔ текст в полето (в лева при режим „само в лева“) */
+const sumIn = v => (lvMode ? Math.round(v / RATE) : v);
+const sumTxt = e => (e ? groupThousands(String(lvMode ? Math.round(e * RATE) : e)) : '');
 function commitSumInput(fromBlur) {
   const t = $('sumInput');
   const digits = t.value.replace(/\D/g, '');
   if (!state.casco.company) return;
-  if (!digits) { t.value = state.casco.sum ? groupThousands(String(state.casco.sum)) : ''; return; }
+  if (!digits) { t.value = sumTxt(state.casco.sum); return; }
   const before = state.casco.sum, beforeNote = state.casco.note;
-  setSum(parseInt(digits, 10), true);
-  t.value = groupThousands(String(state.casco.sum));
+  setSum(sumIn(parseInt(digits, 10)), true);
+  t.value = sumTxt(state.casco.sum);
   if (fromBlur && before === state.casco.sum && beforeNote === state.casco.note) return;
   if (fromBlur) safeRender(renderCasco); else renderCasco();
 }
 $('sumInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); commitSumInput(false); e.target.select(); }
-  else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); stepSum(e.key === 'ArrowUp' ? 1 : -1); e.target.value = state.casco.sum ? groupThousands(String(state.casco.sum)) : ''; renderCasco(); e.target.select(); }
-  else if (e.key === 'Escape') { e.target.value = state.casco.sum ? groupThousands(String(state.casco.sum)) : ''; e.target.blur(); }
+  else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); stepSum(e.key === 'ArrowUp' ? 1 : -1); e.target.value = sumTxt(state.casco.sum); renderCasco(); e.target.select(); }
+  else if (e.key === 'Escape') { e.target.value = sumTxt(state.casco.sum); e.target.blur(); }
 });
 $('sumInput').addEventListener('blur', () => commitSumInput(true));
 // Сумата започва от 0: щракване по плъзгача без промяна избира първата сума от тарифата
@@ -7085,7 +7128,7 @@ kInitForm();
 function kSyncFields() {
   const s = state.kasko;
   const set = (id, v) => { const el = $(id); if (el && document.activeElement !== el) el.value = v == null ? '' : v; };
-  set('kVType', s.vtype); set('kMass', s.mass); set('kPayload', s.payload); set('kBrand', s.brand); set('kReg', s.regText); set('kStart', s.startDate); set('kSum', s.sum); set('kAge', s.ownerAge);
+  set('kVType', s.vtype); set('kMass', s.mass); set('kPayload', s.payload); set('kBrand', s.brand); set('kReg', s.regText); set('kStart', s.startDate); set('kSum', kSumShow(s.sum)); set('kAge', s.ownerAge);
   set('kRegion', s.region); set('kPrev', s.prev); set('kGo', s.go); set('kProp', s.prop);
 }
 function kToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
@@ -7220,7 +7263,7 @@ function renderKCompare(all) {
     const c = K_CO[r.key], sel = s.sel === r.key;
     const eff = r.ok && all.x.sum ? r.premium / all.x.sum * 100 : 0;
     const right = r.ok
-      ? '<span class="k-price"><b>' + eur(r.total) + '</b>' + lv(r.total) + '<small>' + (r.n > 1 ? r.n + ' вноски по ' + eur(r.parts[r.parts.length - 1]) : 'еднократно') + '</small></span>'
+      ? '<span class="k-price"><b>' + eur(r.total) + '</b>' + '<small>' + (r.n > 1 ? r.n + ' вноски по ' + eur(r.parts[r.parts.length - 1]) : 'еднократно') + '</small></span>'
       : '<span class="k-price na"><b>—</b><small>не се предлага</small></span>';
     const meta = r.ok
       ? 'тарифно число ' + kRateTxt(r.rate) + ' → крайно ' + kRateTxt(eff) + ' · ' + r.service + (r.warns.length ? ' · <span class="k-warn">' + r.warns.length + ' ' + (r.warns.length === 1 ? 'забележка' : 'забележки') + '</span>' : '') +
@@ -7255,9 +7298,9 @@ function renderKAdj(all) {
         ch.opts.map(o => '<option value="' + o[0] + '"' + (o[0] === ch.val ? ' selected' : '') + '>' + o[1] + '</option>').join('') + '</select>' : '';
       return '<li class="k-adj-li ' + (i === 0 ? 'base' : (l.kind || 'base')) + (ch ? ' is-q' : '') + '" data-k="kal-' + i + '"><span class="lbl">' + l.label + (l.sub ? '<small>' + l.sub + '</small>' : '') + '</span>' +
         (ch ? '<span class="k-adj-qb">разминаване</span>' + sel : '') +
-        '<span class="amt">' + (l.amount > 0 && l.kind === 'pos' ? '+' : '') + eur(l.amount) + lv(l.amount) + '</span></li>';
+        '<span class="amt">' + (l.amount > 0 && l.kind === 'pos' ? '+' : '') + eur(l.amount) + '</span></li>';
     }).join('') + '</ul>' +
-    '<div class="k-adj-total"><span>Премия по полицата, без данък</span><b>' + eur(r.premium) + lv(r.premium) + '</b></div>';
+    '<div class="k-adj-total"><span>Премия по полицата, без данък</span><b>' + eur(r.premium) + '</b></div>';
   }
   h += '<div class="pay-note">Редовете с „разминаване“ са отстъпки, при които тарифата и указанията се различават. По подразбиране е тарифата; изборът се прилага веднага в сравнението и офертата.</div>';
   morph(box, h);
@@ -7606,7 +7649,10 @@ function kField(el) {
   if (f === 'brand') { s.model = null; }
   if (f === 'prev') { s.prevSeq = null; s.prevClaims = null; s.prevQuota = null; s.dziStep = null; }
   s[f] = (el.tagName === 'SELECT') ? (v || null) : v;
+  if (f === 'sum' && lvMode) { const c = inC(v); s.sum = c ? kSumTxt(c) : ''; }   // пази се в евро
 }
+const kSumTxt = c => fmtCents(c).replace(/,00$/, '');
+const kSumShow = t => { const c = parseMoney(String(t || '')); return c ? kSumTxt(showC(c)) : (t || ''); };
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-kact]');
   if (!t || t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.disabled) return;
@@ -7625,8 +7671,8 @@ document.addEventListener('input', e => {
   if (t.dataset && t.dataset.kf && t.tagName === 'INPUT' && t.type !== 'date') { kField(t); renderKasko(); }
 });
 $('kSum').addEventListener('blur', e => {
-  const c = parseMoney(e.target.value);
-  if (c) { state.kasko.sum = fmtCents(c).replace(/,00$/, ''); e.target.value = state.kasko.sum; }
+  const c = inC(e.target.value);
+  if (c) { state.kasko.sum = kSumTxt(c); e.target.value = kSumShow(state.kasko.sum); }
 });
 
 
@@ -7646,13 +7692,13 @@ function kqSet(v, keepBase) {
 }
 function renderKQuick(all) {
   const S = kqSum(), inp = $('kqSum'), rg = $('kqRange'), tr = $('kqTrack');
-  if (document.activeElement !== inp) inp.value = S ? groupThousands(String(S)) : '';
+  if (document.activeElement !== inp) inp.value = sumTxt(S);
   const max = Math.max(60000, Math.ceil(S / 10000) * 10000);
   rg.max = max; rg.value = Math.min(max, Math.max(1000, S || 1000));
   const p = (Math.min(max, Math.max(1000, S || 1000)) - 1000) / (max - 1000);
   tr.style.setProperty('--sp', S ? p : 0); tr.style.setProperty('--n', 20);
-  $('kqBubble').textContent = S ? groupThousands(String(S)) : '';
-  $('kqMax').textContent = groupThousands(String(max)) + ' €';
+  $('kqBubble').textContent = sumTxt(S);
+  $('kqMax').textContent = intEur(max);
   document.querySelectorAll('#k-quick [data-kq]').forEach(b => { b.disabled = +b.dataset.kq < 0 && S + +b.dataset.kq < 500; });
   const box = $('kqRes');
   if (all.need.length) {
@@ -7680,10 +7726,10 @@ $('kqSum').addEventListener('focus', e => { kqBase = kqSnapshot(); e.target.sele
 $('kqSum').addEventListener('input', e => {
   const v = e.target.value.replace(/\D/g, '').slice(0, 7);
   e.target.value = v ? groupThousands(v) : '';
-  kqSet(+v || 0, true);
+  kqSet(sumIn(+v || 0), true);
 });
 $('kqSum').addEventListener('keydown', e => {
-  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); kqSet(Math.max(500, kqSum() + (e.key === 'ArrowUp' ? 500 : -500)), true); e.target.value = groupThousands(String(kqSum())); }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); kqSet(Math.max(500, kqSum() + (e.key === 'ArrowUp' ? 500 : -500)), true); e.target.value = sumTxt(kqSum()); }
   else if (e.key === 'Enter') e.target.blur();
 });
 
@@ -7730,7 +7776,7 @@ const ceil2 = x => Math.ceil(x * 100 - 1e-7) / 100;
 const floor2 = x => Math.floor(x * 100 + 1e-7) / 100;
 const fmtNum = n => groupThousands(String(n));
 let medCur = 'EUR';
-const medS = v => fmtNum(v) + NBSP + (medCur === 'USD' ? 'USD' : '€');
+const medS = v => (medCur !== 'USD' && lvMode ? intBgn(v) : fmtNum(v) + NBSP + (medCur === 'USD' ? 'USD' : '€'));
 const medBand = (age, bands) => { for (const b of bands) if (age >= b[0] && age <= b[1]) return b[2]; return 0; };
 /* Най-близката налична сума: точната, иначе следващата по-висока, иначе най-високата */
 function medPickSum(list, want) { const s = list.filter(v => v >= want); return s.length ? s[0] : list[list.length - 1]; }
@@ -8340,7 +8386,7 @@ const GT_IND = [[3, 4.5, 7.5], [4, 6, 10], [5, 7.5, 12.5], [6, 9, 15], [7, 10.5,
 const GT_FAM = [[2, 3, 5], [3, 4.5, 7.5], [4, 6, 10], [5, 7.5, 12.5], [6, 9, 15], [8, 12, 20], [10, 15, 25], [12, 18, 30], [13, 19.5, 32.5], [15, 22.5, 37.5],
   [17, 25.5, 42.5], [18, 27, 45], [19, 28.5, 47.5], [20, 30, 50], [21, 31.5, 52.5], [21, 31.5, 52.5], [23, 34.5, 57.5]];   // семейна и групова – еднакви цени
 const turColTxt = d => d >= 366 ? '1 година' : d + ' дни';
-const turArSum = i => eur(toC(AR_T.sums[i])) + ' (' + fmtNum(AR_T.bgn[i]) + ' лв.)';
+const turArSum = i => (lvMode ? fmtNum(AR_T.bgn[i]) + ' лв.' : eur(toC(AR_T.sums[i])) + ' (' + fmtNum(AR_T.bgn[i]) + ' лв.)');
 function turDerive(s) {
   const x = { need: [], purpose: s.purpose };
   if (!s.start) x.need.push('начало на пътуването');
@@ -8577,7 +8623,7 @@ function renderMCompare(all) {
   const ok = rows.filter(r => r.ok), best = ok.length > 1 ? ok[0].total : null;
   morph(box, '<div class="k-list" role="radiogroup" aria-label="Компании">' + rows.map(r => {
     const c = MED_CO[r.key], sel = s.sel === r.key;
-    const right = r.ok ? '<span class="k-price"><b>' + eur(r.total) + '</b>' + lv(r.total) + '<small>' + (all.x.n > 1 ? all.x.n + ' лица' : '1 лице') + '</small></span>'
+    const right = r.ok ? '<span class="k-price"><b>' + eur(r.total) + '</b>' + '<small>' + (all.x.n > 1 ? all.x.n + ' лица' : '1 лице') + '</small></span>'
       : '<span class="k-price na"><b>—</b><small>не се предлага</small></span>';
     const meta = r.ok ? 'сума ' + medS(r.sumUsed) + (r.sumUsed !== s.sum ? ' (най-близката)' : '') + ' · асистанс ' + c.assist + (r.warns.length ? ' · <span class="k-warn">' + r.warns.length + ' ' + (r.warns.length === 1 ? 'забележка' : 'забележки') + '</span>' : '') : r.reason;
     return '<button class="k-row' + (sel ? ' is-sel' : '') + (r.ok ? '' : ' is-na') + '" role="radio" aria-checked="' + sel + '" data-mact="sel" data-val="' + r.key + '" data-fk="mrow-' + r.key + '" style="--co:' + c.color + '">' +
@@ -8626,8 +8672,8 @@ function renderMAdj(all) {
   }
   if (!r.ok) h += '<div class="callout warn">' + ci('alert', 'xs') + '<span>' + MED_CO[key].name + ': ' + r.reason + '</span></div>';
   else {
-    h += '<ul class="k-adj-list">' + r.lines.map((l, i) => '<li class="k-adj-li ' + (i === 0 ? 'base' : (l.kind || 'base')) + '" data-k="mal-' + i + '"><span class="lbl">' + l.label + (l.sub ? '<small>' + l.sub + '</small>' : '') + '</span><span class="amt">' + (l.amount > 0 && l.kind === 'pos' ? '+' : '') + eur(l.amount) + lv(l.amount) + '</span></li>').join('') + '</ul>' +
-      '<div class="k-adj-total"><span>Премия по полицата, без данък</span><b>' + eur(r.premium) + lv(r.premium) + '</b></div>';
+    h += '<ul class="k-adj-list">' + r.lines.map((l, i) => '<li class="k-adj-li ' + (i === 0 ? 'base' : (l.kind || 'base')) + '" data-k="mal-' + i + '"><span class="lbl">' + l.label + (l.sub ? '<small>' + l.sub + '</small>' : '') + '</span><span class="amt">' + (l.amount > 0 && l.kind === 'pos' ? '+' : '') + eur(l.amount) + '</span></li>').join('') + '</ul>' +
+      '<div class="k-adj-total"><span>Премия по полицата, без данък</span><b>' + eur(r.premium) + '</b></div>';
     if (r.incl && r.incl.length) h += '<div class="k-chips">' + r.incl.map(t => '<span class="k-chip">✓ ' + t + '</span>').join('') + '</div>';
     if (r.warns.length) h += r.warns.map(w => '<div class="callout warn">' + ci('alert', 'xs') + '<span>' + w + '</span></div>').join('');
     if (r.notes.length) h += '<ul class="m-notes">' + r.notes.map(n => '<li>' + n + '</li>').join('') + '</ul>';
@@ -8868,7 +8914,7 @@ document.addEventListener('input', e => {
   if (t.dataset.mf === 'tripPrice') {
     const k = s.sel || mFirstKey(), o = (s.ex[k] = s.ex[k] || {});
     const v = t.value.replace(/[^\d\s ,.]/g, ''); if (t.value !== v) t.value = v;
-    o.tripPriceTxt = v; o.tripPrice = (parseMoney(v) || 0) / 100; renderMed(); return;
+    o.tripPriceTxt = v; o.tripPrice = (inC(v) || 0) / 100; renderMed(); return;
   }
 });
 
@@ -8936,7 +8982,7 @@ function renderTCompare(all) {
   const ok = rows.filter(r => r.ok), best = ok.length > 1 ? ok[0].total : null;
   morph(box, '<div class="k-list" role="radiogroup" aria-label="Компании">' + rows.map(r => {
     const c = MED_CO[r.key], sel = s.sel === r.key;
-    const right = r.ok ? '<span class="k-price"><b>' + eur(r.total) + '</b>' + lv(r.total) + '<small>' + (all.x.n > 1 ? all.x.n + ' лица' : '1 лице') + '</small></span>'
+    const right = r.ok ? '<span class="k-price"><b>' + eur(r.total) + '</b>' + '<small>' + (all.x.n > 1 ? all.x.n + ' лица' : '1 лице') + '</small></span>'
       : '<span class="k-price na"><b>—</b><small>не се предлага</small></span>';
     const meta = r.ok ? 'сума ' + r.sumLabel + (r.sumNear ? ' (най-близката)' : '') + (r.key === 'armeec' ? ' · асистанс CORIS' : '') + (r.warns.length ? ' · <span class="k-warn">' + r.warns.length + ' ' + (r.warns.length === 1 ? 'забележка' : 'забележки') + '</span>' : '') : r.reason;
     return '<button class="k-row' + (sel ? ' is-sel' : '') + (r.ok ? '' : ' is-na') + '" role="radio" aria-checked="' + sel + '" data-tact="sel" data-val="' + r.key + '" data-fk="trow-' + r.key + '" style="--co:' + c.color + '">' +
@@ -8957,8 +9003,8 @@ function renderTAdj(all) {
   h += '<div class="m-extra">' + TUR_EXTRA[key].map(o => '<div class="pgroup">' + tToggle({ icon: o.icon, title: o.t, act: 'extog', val: o.k, on: tExOn(key, o), desc: o.d }) + '</div>').join('') + '</div>';
   if (!r.ok) h += '<div class="callout warn">' + ci('alert', 'xs') + '<span>' + MED_CO[key].name + ': ' + r.reason + '</span></div>';
   else {
-    h += '<ul class="k-adj-list">' + r.lines.map((l, i) => '<li class="k-adj-li ' + (i === 0 ? 'base' : (l.kind || 'base')) + '" data-k="tal-' + i + '"><span class="lbl">' + l.label + (l.sub ? '<small>' + l.sub + '</small>' : '') + '</span><span class="amt">' + (l.amount > 0 && l.kind === 'pos' ? '+' : '') + eur(l.amount) + lv(l.amount) + '</span></li>').join('') + '</ul>' +
-      '<div class="k-adj-total"><span>Премия по полицата, без данък</span><b>' + eur(r.premium) + lv(r.premium) + '</b></div>';
+    h += '<ul class="k-adj-list">' + r.lines.map((l, i) => '<li class="k-adj-li ' + (i === 0 ? 'base' : (l.kind || 'base')) + '" data-k="tal-' + i + '"><span class="lbl">' + l.label + (l.sub ? '<small>' + l.sub + '</small>' : '') + '</span><span class="amt">' + (l.amount > 0 && l.kind === 'pos' ? '+' : '') + eur(l.amount) + '</span></li>').join('') + '</ul>' +
+      '<div class="k-adj-total"><span>Премия по полицата, без данък</span><b>' + eur(r.premium) + '</b></div>';
     if (r.incl && r.incl.length) h += '<div class="k-chips">' + r.incl.map(t => '<span class="k-chip">✓ ' + t + '</span>').join('') + '</div>';
     if (r.warns.length) h += r.warns.map(w => '<div class="callout warn">' + ci('alert', 'xs') + '<span>' + w + '</span></div>').join('');
     if (r.notes.length) h += '<ul class="m-notes">' + r.notes.map(n => '<li>' + n + '</li>').join('') + '</ul>';
