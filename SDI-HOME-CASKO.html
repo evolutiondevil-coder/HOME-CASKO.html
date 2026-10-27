@@ -874,60 +874,165 @@ button.tile.lift:has(.aa-terr-art) .tick { z-index: 2; }
 .kq-best { position: absolute; top: -8px; left: 12px; padding: 1px 7px; border-radius: 999px; background: #1FA855; color: #fff; font-size: 10px; font-weight: 700; }
 @media (max-width: 1100px) { .kq-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 760px) { .kq-btn { width: 46px; height: 46px; } .kq-input { height: 56px; font-size: 24px; padding-right: 40px; } .kq-cur { right: 14px; font-size: 18px; } .kq-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .kq-co { flex-direction: column; align-items: stretch; gap: 6px; padding: 12px 10px 8px; } .kq-co .k-logo.q { width: 100%; } .kq-pr { margin-left: 0; text-align: center; } }
-/* Колата на скалата: расте и се надгражда заедно със сумата */
+/* Колата на скалата: 25 нива в 6 класа – всяко ниво има своя кола, цвят и екстри, а фонът се сменя с класа */
 .car-stage {
-  --cw: 250px;
-  position: relative; height: 170px; margin: 16px 0 0; border-radius: 18px; overflow: hidden; border: 1px solid var(--line);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--surface-2)), var(--surface-2) 75%);
+  --cw: 300px; --tc: #A87B45;
+  position: relative; height: 216px; margin: 16px 0 0; border-radius: 18px; overflow: hidden; border: 1px solid var(--line);
+  background: #E7ECF2; isolation: isolate;
 }
-.car-road { position: absolute; left: 0; right: 0; bottom: 0; height: 24px; background: linear-gradient(180deg, #CDD5DF, #BCC6D2); border-top: 1px solid #B4BECB; }
-.car-road::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .95) 0 18px, transparent 18px 34px); }
-[data-theme="dark"] .car-road { background: linear-gradient(180deg, #24324B, #1C2840); border-top-color: #2F4366; }
-[data-theme="dark"] .car-road::after { background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .45) 0 18px, transparent 18px 34px); }
-.car-label { position: absolute; left: 14px; top: 10px; display: flex; flex-direction: column; line-height: 1.2; z-index: 1; }
-.car-label b { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--ink); }
-.car-label small { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.cs-bg { position: absolute; inset: 0; opacity: 0; transition: opacity 1s var(--ease); }
+.cs-bg.on { opacity: 1; }
+.cs-bg svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cs-bg .far { transform: translateX(calc(var(--p, 0) * -30px)); transition: transform 1.1s var(--ease-io); }
+.cs-bg .mid { transform: translateX(calc(var(--p, 0) * -80px)); transition: transform 1.1s var(--ease-io); }
+.cs-neon { filter: drop-shadow(0 0 3px currentColor); }
+.cs-star { animation: csTwinkle 3s ease-in-out infinite; animation-delay: calc(var(--i) * -.37s); }
+@keyframes csTwinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+[data-theme="dark"] .cs-bg.day { filter: brightness(.78) saturate(.9); }
+.car-stage.off .cs-bg { filter: grayscale(.7) brightness(1.04); }
+[data-theme="dark"] .car-stage.off .cs-bg { filter: grayscale(.7) brightness(.7); }
+/* Пътят: цвят и маркировка по класа; маркировката се плъзга заедно с колата */
+.cs-road {
+  --rd: #8E98A6; --rl: rgba(255, 255, 255, .92); --re: rgba(255, 255, 255, .5);
+  position: absolute; left: 0; right: 0; bottom: 0; height: 34px; z-index: 1;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--rd) 88%, #fff), var(--rd)); box-shadow: inset 0 2px 0 var(--re);
+  transition: background-color 1s var(--ease), box-shadow 1s var(--ease);
+}
+.cs-road::after {
+  content: ""; position: absolute; left: -60px; right: -60px; top: 50%; height: 3px; margin-top: -1px; border-radius: 2px;
+  background: repeating-linear-gradient(90deg, var(--rl) 0 24px, transparent 24px 48px);
+  background-position-x: calc(var(--p, 0) * -480px); transition: background-position-x 1s var(--ease-io);
+}
+.car-stage[data-tier="0"] .cs-road { --rd: #B59B74; --rl: transparent; --re: rgba(120, 90, 50, .35); }
+.car-stage[data-tier="0"] .cs-road::before { content: ""; position: absolute; left: 0; right: 0; top: 9px; height: 15px; border-top: 2px solid rgba(110, 82, 48, .28); border-bottom: 2px solid rgba(110, 82, 48, .28); }
+.car-stage[data-tier="3"] .cs-road { --rd: #6F798A; }
+.car-stage[data-tier="4"] .cs-road { --rd: #3E3552; --rl: #FFD34D; --re: rgba(255, 190, 120, .55); }
+.car-stage[data-tier="5"] .cs-road { --rd: #12162B; --rl: #FF3EA5; --re: #3EE6FF; }
+.car-stage[data-tier="5"] .cs-road { box-shadow: inset 0 2px 0 var(--re), 0 -2px 12px -2px rgba(62, 230, 255, .7); }
+.car-stage[data-tier="5"] .cs-road::after { box-shadow: 0 0 8px rgba(255, 62, 165, .8); }
+/* Табло: клас, име и ниво; горе вдясно – шест класа и какво следва */
+.cs-hud, .cs-meter {
+  position: absolute; top: 12px; z-index: 3; padding: 8px 12px; border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  box-shadow: 0 8px 20px -14px rgba(10, 20, 40, .55), inset 0 0 0 1px color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.cs-hud { left: 12px; display: flex; flex-direction: column; gap: 1px; max-width: 54%; }
+.cs-tier { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--tc); transition: color .8s var(--ease); }
+.cs-tier i { width: 8px; height: 8px; border-radius: 50%; background: var(--tc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--tc) 22%, transparent); transition: background-color .8s var(--ease); }
+.cs-name { font-family: var(--display); font-size: 18px; font-weight: 650; color: var(--ink); line-height: 1.2; }
+.cs-lvl { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.cs-meter { right: 12px; width: 212px; }
+.cs-segs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+.cs-segs i { position: relative; height: 6px; border-radius: 3px; overflow: hidden; background: color-mix(in srgb, var(--ink-3) 20%, transparent); }
+.cs-segs i::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--c); transform-origin: left; transform: scaleX(var(--f, 0)); transition: transform .8s var(--ease-io); }
+.cs-ends { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; }
+.cs-next { margin-top: 5px; font-size: 11.5px; line-height: 1.35; color: var(--ink-3); }
+.cs-next b { color: var(--ink-2); font-weight: 650; }
+/* Колата */
 .car-ride {
-  position: absolute; bottom: 4px; width: var(--cw); left: clamp(0px, calc(var(--p, 0) * 100% - var(--cw) / 2), calc(100% - var(--cw)));
-  transition: left .9s var(--ease-io), opacity .6s var(--ease), filter .6s var(--ease);
+  position: absolute; bottom: 12px; z-index: 4; width: var(--cw);
+  left: clamp(-8px, calc(var(--p, 0) * 100% - var(--cw) / 2), calc(100% - var(--cw) + 8px));
+  transition: left 1s var(--ease-io), opacity .6s var(--ease), filter .6s var(--ease);
 }
-.car-stage.off .car-ride { opacity: .45; filter: grayscale(1); }
+.car-stage.off .car-ride { opacity: .5; filter: grayscale(1); }
+.cs-pop {
+  position: absolute; left: 50%; bottom: 100%; margin-bottom: -18px; z-index: 4; display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px 5px 9px; border-radius: 999px; background: #14203A; color: #fff; font-size: 12.5px; font-weight: 700; white-space: nowrap;
+  box-shadow: 0 10px 22px -10px rgba(5, 10, 25, .7), inset 0 0 0 1px rgba(255, 255, 255, .12); opacity: 0; pointer-events: none; transform: translate(-50%, 10px);
+}
+.cs-pop i { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--tc); font-style: normal; font-size: 11px; }
+.cs-pop.show { animation: csPop 2.8s var(--ease) forwards; }
+@keyframes csPop {
+  0% { opacity: 0; transform: translate(-50%, 12px) scale(.85); } 10% { opacity: 1; transform: translate(-50%, -4px) scale(1.05); }
+  18% { transform: translate(-50%, 0) scale(1); } 78% { opacity: 1; transform: translate(-50%, -6px); } 100% { opacity: 0; transform: translate(-50%, -16px); }
+}
+.cs-burst { position: absolute; left: 50%; top: 58%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 3px solid var(--tc); opacity: 0; pointer-events: none; }
+.cs-burst.show { animation: csBurst 1.1s var(--ease) forwards; }
+@keyframes csBurst { 0% { opacity: .9; transform: scale(.3); } 100% { opacity: 0; transform: scale(2.6); } }
 .car-svg { display: block; width: 100%; height: auto; overflow: visible; }
-.car-svg path, .car-svg circle, .car-svg rect, .car-svg ellipse, .car-svg g, .car-svg stop {
-  transition: d .85s var(--ease-io), opacity .6s var(--ease), fill .8s var(--ease), stroke .8s var(--ease), stop-color .85s var(--ease), transform .85s var(--ease-io);
+.car-svg path, .car-svg circle, .car-svg rect, .car-svg ellipse, .car-svg g, .car-svg stop, .car-svg polygon {
+  transition: d 1s var(--ease-io), opacity .7s var(--ease), fill .9s var(--ease), stroke .9s var(--ease), stop-color 1s var(--ease), transform 1s var(--ease-io);
 }
-.car-shadow { fill: #0B1630; opacity: .2; }
-.car-under { fill: #FF8A1F; filter: blur(4px); }
-.car-smoke circle { fill: #A3ABB6; transform-box: fill-box; transform-origin: center; animation: carSmoke 2.6s ease-out infinite; }
-.car-smoke circle:nth-child(2) { animation-delay: .8s; } .car-smoke circle:nth-child(3) { animation-delay: 1.6s; }
-@keyframes carSmoke { 0% { opacity: .75; transform: translate(0, 0) scale(.6); } 100% { opacity: 0; transform: translate(-10px, -9px) scale(1.7); } }
-.car-speed path { fill: none; stroke: var(--ink-3); stroke-width: 2.2; stroke-linecap: round; opacity: .55; }
-.car-spoiler { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-.car-body { fill: url(#carPaint); stroke: rgba(10, 20, 40, .28); stroke-width: .7; }
-.car-primer { fill: #A5ABB3; stroke: rgba(0, 0, 0, .15); stroke-width: .6; }
-.car-rust path, .car-rust circle { fill: #7A4A22; opacity: .85; }
-.car-stripe { fill: none; stroke-width: 2.6; stroke-linecap: round; }
-.car-shine { fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; }
-.car-win { stroke: rgba(10, 20, 40, .3); stroke-width: .7; }
-.car-pillar { fill: none; stroke-width: 4; stroke-linecap: round; }
-.car-crack { fill: none; stroke: #fff; stroke-width: .9; stroke-linecap: round; }
-.car-antenna { stroke: #2A2F3A; stroke-width: 1.2; stroke-linecap: round; }
-.car-bumper { fill: #7D838C; }
-.car-head-old { fill: #FFE9A8; stroke: #8A7F63; stroke-width: .8; }
-.car-head-led { fill: none; stroke: #EAF6FF; stroke-width: 3; stroke-linecap: round; }
-.car-tail { stroke: rgba(0, 0, 0, .2); stroke-width: .5; }
-.car-tire { fill: #1E222D; }
-.car-cap { fill: #DCE2EA; stroke: #A9B2BE; stroke-width: 1; }
-.car-hub { fill: #8A93A0; }
-.car-holes { stroke: #6B7480; stroke-width: 1.6; }
-.car-caliper { fill: none; stroke: #E5302A; stroke-width: 3.2; stroke-linecap: round; }
-.car-sparkles path { fill: #FFD23F; animation: carTwinkle 2.2s ease-in-out infinite; animation-delay: calc(var(--i) * .55s); }
-@keyframes carTwinkle { 0%, 100% { opacity: .15; } 50% { opacity: 1; } }
-.car-svg.drive .car-spokes, .car-svg.drive .car-holes, .car-svg.drive .car-hub { animation: carSpin .45s linear 2; }
-.car-svg.back .car-spokes, .car-svg.back .car-holes, .car-svg.back .car-hub { animation: carSpin .45s linear 2 reverse; }
-.car-svg.drive, .car-svg.back { animation: carBob .9s var(--ease); }
-@keyframes carSpin { to { transform: rotate(360deg); } }
-@keyframes carBob { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-3px); } }
+.cb-shadow { fill: #08122A; opacity: .26; }
+.cb-under { filter: blur(5px); animation: cbGlow 2.4s ease-in-out infinite; }
+@keyframes cbGlow { 0%, 100% { opacity: .55; } 50% { opacity: .95; } }
+.cb-tilt, .cb-anim { transform-box: view-box; transform-origin: 70px 100px; }
+.cb-well, .cb-intake { fill: #0D1016; }
+.cb-body { fill: url(#cbPaint); stroke: rgba(8, 16, 34, .35); stroke-width: .7; }
+.cb-roof { fill: var(--roof, #fff); }
+.cb-crease { fill: none; stroke: rgba(255, 255, 255, .38); stroke-width: 1.1; stroke-linecap: round; }
+.cb-lower { fill: none; stroke: rgba(0, 0, 0, .16); stroke-width: 1.2; stroke-linecap: round; }
+.cb-gloss { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; }
+.cb-seams { fill: none; stroke: rgba(8, 16, 34, .42); stroke-width: .8; stroke-linecap: round; }
+.cb-handle { fill: rgba(8, 16, 34, .38); }
+.cb-glass { fill: url(#cbGlass); stroke-width: 1.3; stroke-linejoin: round; }
+.cb-refl { fill: rgba(255, 255, 255, .28); }
+.cb-pillar { fill: none; stroke-width: 3.2; stroke-linecap: round; }
+.cb-pano { fill: none; stroke: #18202E; stroke-width: 2.3; stroke-linecap: round; }
+.cb-rails { fill: none; stroke: #2A2F3A; stroke-width: 1.8; stroke-linecap: round; }
+.cb-fin, .cb-mirror { stroke: rgba(8, 16, 34, .3); stroke-width: .5; }
+.cb-antenna { stroke: #2A2F3A; stroke-width: 1.1; stroke-linecap: round; }
+.cb-clad { fill: none; stroke: #30353F; stroke-width: 3.4; }
+.cb-skirt { fill: none; stroke-width: 3.6; stroke-linecap: round; }
+.cb-stripes { fill: none; stroke-width: 2.6; stroke-linecap: round; }
+.cb-pin { fill: none; stroke: #E9C46A; stroke-width: 1; stroke-linecap: round; }
+.cb-hood { fill: url(#cbCarbon); }
+.cb-bump { transform-box: fill-box; transform-origin: right center; }
+.cb-exh rect { stroke: #343944; stroke-width: .5; }
+.cb-bump rect { stroke: rgba(0, 0, 0, .18); stroke-width: .5; }
+.cb-beam { fill: url(#cbBeam); }
+.cb-glow { fill: url(#cbGlowG); }
+.cb-sweep { fill: url(#cbSweepG); }
+.car-stage.shine .cb-sweep { animation: cbSweep 1.1s .3s var(--ease) both; }
+@keyframes cbSweep { from { transform: translateX(-60px) skewX(-22deg); } to { transform: translateX(330px) skewX(-22deg); } }
+.cb-sweep { transform: translateX(-60px) skewX(-22deg); }
+/* Колела */
+.cw-tire { fill: #1B1F28; }
+.cw-side { fill: none; stroke: #2E3440; stroke-width: 1.6; }
+.cw-white { fill: none; stroke: #F3EFE4; stroke-width: 2.6; }
+.cw-lip { fill: none; stroke-width: 1.3; }
+.cw-steel circle { fill: #8E949C; }
+.car-stage.cs-init *, .car-stage.cs-init *::after { transition: none !important; }
+.cw-cap path { fill: rgba(0, 0, 0, .22); }
+.cw-cap .cw-cap-in { fill: none; stroke: rgba(0, 0, 0, .18); stroke-width: .9; }
+.cw-cal { fill: none; stroke: #E5302A; stroke-width: 3.4; stroke-linecap: round; }
+.cw-neon { fill: none; stroke-width: 1.4; filter: drop-shadow(0 0 2.5px currentColor); }
+.car-stage.fwd .cw-face { animation: cwSpin .5s linear 2; }
+.car-stage.rev .cw-face { animation: cwSpin .5s linear 2 reverse; }
+@keyframes cwSpin { to { transform: rotate(360deg); } }
+.car-stage.fwd .cb-anim { animation: cbFwd 1s var(--ease-io); }
+.car-stage.rev .cb-anim { animation: cbRev 1s var(--ease-io); }
+@keyframes cbFwd { 0%, 100% { transform: none; } 22% { transform: rotate(-1.6deg); } 70% { transform: rotate(.7deg); } }
+@keyframes cbRev { 0%, 100% { transform: none; } 22% { transform: rotate(1.2deg); } 70% { transform: rotate(-.5deg); } }
+/* Таратайка: тресе се, пуши, има мухи; спортните бълват пламъци при потегляне */
+.car-stage[data-shake] .cb-shake { animation: cbShake .22s steps(2) infinite; }
+@keyframes cbShake { 0% { transform: translate(0, 0); } 50% { transform: translate(.35px, -.45px); } }
+.cb-smoke circle { transform-box: fill-box; transform-origin: center; animation: cbSmoke 2.4s ease-out infinite; }
+.cb-smoke circle:nth-child(2) { animation-delay: .8s; } .cb-smoke circle:nth-child(3) { animation-delay: 1.6s; }
+@keyframes cbSmoke { 0% { opacity: .8; transform: translate(0, 0) scale(.5); } 100% { opacity: 0; transform: translate(-16px, -12px) scale(1.9); } }
+.cb-fly { fill: #1E2229; animation: cbFly 1.4s linear infinite; }
+.cb-fly:nth-child(2) { animation-duration: 1.9s; animation-direction: reverse; } .cb-fly:nth-child(3) { animation-duration: 1.1s; }
+@keyframes cbFly { from { transform: rotate(0deg) translateX(6px); } to { transform: rotate(360deg) translateX(6px); } }
+.cb-flame { opacity: 0; transform-box: fill-box; transform-origin: right center; }
+.car-stage.fwd .cb-flames.on .cb-flame { animation: cbFlame .16s ease-in-out 6 alternate; }
+@keyframes cbFlame { from { opacity: .95; transform: scaleX(.7); } to { opacity: .7; transform: scaleX(1.25); } }
+.cb-speed path { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; opacity: 0; }
+.car-stage.fwd .cb-speed.on path { animation: cbSpeed .5s ease-out 2; }
+.cb-speed path:nth-child(2) { animation-delay: .12s !important; } .cb-speed path:nth-child(3) { animation-delay: .24s !important; }
+@keyframes cbSpeed { 0% { opacity: 0; transform: translateX(10px); } 40% { opacity: .7; } 100% { opacity: 0; transform: translateX(-26px); } }
+.cb-trails path { fill: none; stroke-width: 2; stroke-linecap: round; }
+.cb-spark path { animation: cbTwinkle 2.2s ease-in-out infinite; animation-delay: calc(var(--i) * .5s); }
+@keyframes cbTwinkle { 0%, 100% { opacity: .1; } 50% { opacity: 1; } }
+@media (max-width: 760px) {
+  .car-stage { --cw: 218px; height: 176px; }
+  .cs-hud { padding: 6px 10px; max-width: calc(100% - 158px); }
+  .cs-name { font-size: 14.5px; }
+  .cs-hud, .cs-meter { top: 10px; }
+  .cs-meter { width: 118px; padding: 7px 9px; }
+  .cs-next, .cs-ends { display: none; }
+  .cs-road { height: 28px; }
+  .car-ride { bottom: 9px; }
+}
 .compare { margin-top: 20px; padding: 14px 14px 10px; border-radius: 18px; background: var(--surface-2); border: 1px solid var(--line); }
 .compare:empty { display: none; }
 .compare-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
@@ -2195,7 +2300,6 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
   .sum-btn { width: 48px; }
   .q-total { font-size: 38px; }
   .seg-pay { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .car-stage { --cw: 190px; height: 142px; }
   .cmp-row { grid-template-columns: auto minmax(96px, 1fr) auto; gap: 8px; padding: 9px 8px; }
   .cmp-row:disabled .cmp-price { white-space: normal; text-align: right; max-width: 110px; font-size: 13px; line-height: 1.3; }
   .cmp-row .dots { display: none; }
@@ -4902,185 +5006,453 @@ const TT_ICONS = { exp: 'data:image/webp;base64,UklGRrwPAABXRUJQVlA4WAoAAAAQAAAA
 
 /* ================================================================
    КАСКО: КОЛАТА НА СКАЛАТА
-   Една и съща кола в 25 нива — на всеки 1 000 € застрахователна сума
-   тя се надгражда: от бричка (1 000 €) до мечтаната кола (25 000 €).
-   Формата, цветът, джантите и детайлите се сменят плавно (CSS преходи).
+   25 нива в 6 класа – на всеки 1 000 € застрахователна сума колата се надгражда:
+   от ръждясала бричка (1 000 €) до мечтаната суперкола (25 000 €). Всяко ниво има
+   своя форма, цвят, джанти и екстри, а фонът се сменя с класа: село → градче →
+   предградие → център по залез → магистрала → нощен неонов град.
+   Промените се преливат с CSS преходи (формата – чрез свойството d).
    ================================================================ */
-const CAR_NAMES = [
-  'Бричка', 'Стара кракла', 'Очукана, но върви', 'Ветеран на пътя', 'Скромно возило',
-  'Малка градска', 'Градски хечбек', 'Практичен хечбек', 'Компактна кола', 'Семеен компакт',
-  'Семеен седан', 'Комфортен седан', 'Седан с екстри', 'Бизнес седан', 'Спортен седан',
-  'Премиум седан', 'Луксозен седан', 'Спортно купе', 'Мощно купе', 'Гран туризмо',
-  'Спортен автомобил', 'Ексклузивен спортен', 'Суперкола', 'Лимитирана серия', 'Мечтаната кола'
+const CAR_TIERS = [
+  { name: 'Таратайка', c: '#A87B45' }, { name: 'Градска', c: '#1FA971' }, { name: 'Семейна', c: '#2E7CF6' },
+  { name: 'Премиум', c: '#7B4DE0' }, { name: 'Спортна', c: '#EE4B2B' }, { name: 'Суперкола', c: '#D9A21B' }
 ];
-/* Цвят на боята по нива (между тях се преливат) */
-const CAR_PAINT = [[0, '#8F7A5A'], [4, '#878C79'], [8, '#6C8BA8'], [12, '#2F6BEA'], [16, '#22337A'], [19, '#B3122E'], [22, '#E0261C'], [24, '#FF6A00']];
-const CAR_GLASS = [[0, '#C9D6DF'], [10, '#8FB0CC'], [17, '#3C5272'], [24, '#1A2438']];
+/* [име, клас, форма, боя, стъкло, джанти, какво ново] */
+const CAR_LV = [
+  ['Бричка', 0, 'wreck', '#8A7456', '#C9D2CB', 'steel', 'Ръжда, дим и пукнато стъкло'],
+  ['Стара кракла', 0, 'wreck', '#918566', '#C6D2D2', 'steel', 'Стъклото е сменено'],
+  ['Очукана, но върви', 0, 'wreck', '#7D8A72', '#C2D2D8', 'steel', 'По-малко ръжда и дим'],
+  ['Ветеран на пътя', 0, 'old', '#E8D8B0', '#BFD7E8', 'white', 'Реставрация: хром и бели гуми'],
+  ['Скромно возило', 1, 'city', '#C3CAD3', '#B4D2EA', 'steelcap', 'Нова малка кола'],
+  ['Малка градска', 1, 'city', '#33C29A', '#A9CDEA', 'cap', 'Бял покрив и тасове'],
+  ['Градски хечбек', 1, 'hatch', '#F6B92B', '#A2C6E6', 'cap', 'Хечбек с повече място'],
+  ['Практичен хечбек', 1, 'hatch', '#2FA3EE', '#9CC1E2', 'alloy', 'Алуминиеви джанти'],
+  ['Компактна кола', 1, 'hatch', '#2563EB', '#8DB2D6', 'alloy', 'Спойлер и LED фарове'],
+  ['Семеен кросоувър', 2, 'suv', '#A7B2C0', '#7FA2C4', 'alloy', 'Кросоувър с релси на покрива'],
+  ['Семеен седан', 2, 'sedan', '#5E7389', '#7393B5', 'alloy', 'Седан с хромирани лайсни'],
+  ['Комфортен седан', 2, 'sedan', '#1E5FD3', '#4D6B8E', 'alloy', 'Тонирани стъкла и халогени'],
+  ['Седан с екстри', 2, 'sedan', '#0F7C86', '#3E5876', 'multi', 'Панорамен покрив'],
+  ['Бизнес седан', 2, 'biz', '#1B2B4D', '#33465F', 'multi', 'LED матрични фарове'],
+  ['Спортен седан', 3, 'biz', '#3A4150', '#2B3950', 'multi', 'Червени спирачни апарати'],
+  ['Премиум седан', 3, 'lux', '#121823', '#26324A', 'multi', 'Черен металик и хром'],
+  ['Луксозен седан', 3, 'lux', '#6E1430', '#2A2F45', 'multi', 'Златна линия'],
+  ['Спортно купе', 3, 'coupe', '#EEF1F6', '#232C40', 'forged', 'Купе с черен покрив'],
+  ['Мощно купе', 4, 'coupe', '#D3122A', '#1F2738', 'forged', 'Състезателни ивици и 4 ауспуха'],
+  ['Гран туризмо', 4, 'sport', '#0E5A45', '#1C2535', 'gold', 'Златни джанти'],
+  ['Спортен автомобил', 4, 'sport', '#FFC21A', '#1A2232', 'forged', 'Голямо задно крило'],
+  ['Ексклузивен спортен', 4, 'sport', '#FF4A1C', '#182030', 'forged', 'Карбонов капак'],
+  ['Суперкола', 5, 'hyper', '#7ED321', '#151C2B', 'turbine', 'Неонова подсветка'],
+  ['Лимитирана серия', 5, 'hyper', '#8B5CF6', '#141A28', 'turbine', 'Хромирана боя'],
+  ['Мечтаната кола', 5, 'hyper', '#F5C542', '#121826', 'turbine', 'Всичко на максимум']
+];
+/* Форми (viewBox 260×120, земята е на y = 108). xr/xn – задна и предна точка; ytr, rt – горният ръб отзад и заоблянето му;
+   xrw, ytr2 – основата на задното стъкло; xr1/yrf и xr2/yrf2 – началото и краят на покрива; xws, ybl – основата на предното стъкло;
+   xh, yh – краят на капака; nr – заобляне на носа; rb – долните ъгли; wr – колело; ovr – заден надвес; wb – междуосие;
+   cl – клиренс (част от wr); dr – врати; bp – къде е средната колона (част от покрива) */
+const CAR_SHAPES = {
+  wreck: { xr: 36, xn: 226, ytr: 63, rt: 3, xrw: 72, ytr2: 62, xr1: 92, yrf: 39, xr2: 150, yrf2: 39, xws: 168, ybl: 62, xh: 218, yh: 65, nr: 4, rb: 4, wr: 13, ovr: 40, wb: 114, cl: .72, dr: 4, bp: .52 },
+  old: { xr: 36, xn: 226, ytr: 62, rt: 5, xrw: 72, ytr2: 61, xr1: 92, yrf: 39, xr2: 150, yrf2: 39, xws: 168, ybl: 61, xh: 216, yh: 64, nr: 6, rb: 5, wr: 13.5, ovr: 40, wb: 114, cl: .66, dr: 4, bp: .52 },
+  city: { xr: 52, xn: 210, ytr: 58, rt: 12, xrw: 56, ytr2: 56, xr1: 74, yrf: 39, xr2: 134, yrf2: 39, xws: 168, ybl: 63, xh: 200, yh: 69, nr: 13, rb: 7, wr: 13.5, ovr: 25, wb: 106, cl: .62, dr: 2, bp: .8 },
+  hatch: { xr: 34, xn: 228, ytr: 57, rt: 8, xrw: 40, ytr2: 55, xr1: 66, yrf: 38, xr2: 146, yrf2: 39, xws: 176, ybl: 62, xh: 218, yh: 67, nr: 10, rb: 6, wr: 14.5, ovr: 34, wb: 122, cl: .56, dr: 4, bp: .5 },
+  suv: { xr: 30, xn: 232, ytr: 51, rt: 8, xrw: 35, ytr2: 49, xr1: 56, yrf: 29, xr2: 150, yrf2: 30, xws: 180, ybl: 55, xh: 224, yh: 59, nr: 10, rb: 7, wr: 17, ovr: 36, wb: 128, cl: .86, dr: 4, bp: .5 },
+  sedan: { xr: 22, xn: 238, ytr: 61, rt: 6, xrw: 62, ytr2: 60, xr1: 96, yrf: 38, xr2: 150, yrf2: 39, xws: 180, ybl: 61, xh: 230, yh: 66, nr: 9, rb: 6, wr: 15.5, ovr: 44, wb: 132, cl: .52, dr: 4, bp: .48 },
+  biz: { xr: 20, xn: 240, ytr: 62, rt: 7, xrw: 58, ytr2: 61, xr1: 100, yrf: 40, xr2: 154, yrf2: 41, xws: 186, ybl: 63, xh: 232, yh: 68, nr: 9, rb: 6, wr: 16.5, ovr: 42, wb: 136, cl: .46, dr: 4, bp: .48 },
+  lux: { xr: 18, xn: 242, ytr: 63, rt: 9, xrw: 42, ytr2: 62, xr1: 104, yrf: 41, xr2: 152, yrf2: 43, xws: 186, ybl: 63, xh: 234, yh: 68, nr: 10, rb: 6, wr: 17, ovr: 42, wb: 138, cl: .42, dr: 4, bp: .48 },
+  coupe: { xr: 26, xn: 236, ytr: 64, rt: 8, xrw: 46, ytr2: 63, xr1: 104, yrf: 45, xr2: 140, yrf2: 47, xws: 178, ybl: 65, xh: 228, yh: 70, nr: 10, rb: 6, wr: 17, ovr: 40, wb: 130, cl: .4, dr: 2, bp: .86 },
+  sport: { xr: 26, xn: 238, ytr: 67, rt: 13, xrw: 32, ytr2: 65, xr1: 100, yrf: 50, xr2: 138, yrf2: 51, xws: 174, ybl: 69, xh: 230, yh: 76, nr: 12, rb: 5, wr: 17.5, ovr: 38, wb: 128, cl: .36, dr: 2, bp: .9 },
+  hyper: { xr: 20, xn: 242, ytr: 68, rt: 5, xrw: 34, ytr2: 67, xr1: 102, yrf: 59, xr2: 126, yrf2: 60, xws: 156, ybl: 76, xh: 230, yh: 85, nr: 6, rb: 4, wr: 18, ovr: 40, wb: 140, cl: .3, dr: 2, bp: .95 }
+};
+/* Джанти: какво се вижда, колко е голяма (спрямо гумата), цвят на джантата и на фона между спиците */
+const CAR_RIMS = {
+  steel: { g: 'steel', k: .66, rim: '#2E333D', disc: '#2E333D' },
+  white: { g: 'cap', k: .56, rim: '#E3E7EC', disc: '#E3E7EC', white: 1 },
+  steelcap: { g: 'steel', k: .66, rim: '#3A404B', disc: '#3A404B' },
+  cap: { g: 'cap', k: .7, rim: '#D7DDE5', disc: '#D7DDE5' },
+  alloy: { g: 'alloy', k: .74, rim: '#CDD4DD', disc: '#2A2F38' },
+  multi: { g: 'multi', k: .8, rim: '#C2CAD5', disc: '#23272F' },
+  forged: { g: 'forged', k: .84, rim: '#454C59', disc: '#0F1116', lip: '#78808D' },
+  gold: { g: 'forged', k: .84, rim: '#D4A24C', disc: '#1A1610', lip: '#EBCB86' },
+  turbine: { g: 'turbine', k: .88, rim: '#15181F', disc: '#0B0D12' }
+};
+const CAR_NEON = { 22: '#7CFF4F', 23: '#B67CFF', 24: '#FFD24A' };
 
-function carHex(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
-function carMix(a, b, t) { const A = carHex(a), B = carHex(b); return 'rgb(' + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',') + ')'; }
-function carRamp(stops, L) {
-  for (let i = 1; i < stops.length; i++) if (L <= stops[i][0]) {
-    const [l0, c0] = stops[i - 1], [l1, c1] = stops[i];
-    return carMix(c0, c1, (L - l0) / (l1 - l0));
-  }
-  return carMix(stops[stops.length - 1][1], stops[stops.length - 1][1], 0);
+function carShade(hex, k) {   // k > 0 по-светло, k < 0 по-тъмно
+  const n = parseInt(hex.slice(1), 16);
+  return 'rgb(' + [n >> 16 & 255, n >> 8 & 255, n & 255].map(x => Math.round(k > 0 ? x + (255 - x) * k : x * (1 + k))).join(',') + ')';
 }
-function carShade(rgb, k) {   // k > 0 по-светло, k < 0 по-тъмно
-  const v = rgb.match(/\d+/g).map(Number);
-  return 'rgb(' + v.map(x => Math.round(k > 0 ? x + (255 - x) * k : x * (1 + k))).join(',') + ')';
-}
-/* Геометрия: стойности за ниво 1 (кутийна стара кола) и ниво 25 (ниска суперкола) */
-const CAR_A = { xr: 24, xn: 214, yb: 86, ytr: 55, xrw: 58, ytr2: 55, xr1: 80, yrf: 27, xr2: 140, xws: 158, ybl: 58, yh: 59, wr: 13, wrx: 60, wfx: 176 };
-const CAR_B = { xr: 14, xn: 228, yb: 86, ytr: 64, xrw: 44, ytr2: 65, xr1: 98, yrf: 49, xr2: 124, xws: 174, ybl: 67, yh: 74, wr: 17.5, wrx: 62, wfx: 186 };
+/* Числата в пътищата се закръглят до 2 знака */
+const cbP = (s, ...v) => s.reduce((a, t, i) => a + t + (i < v.length ? +(+v[i]).toFixed(2) : ''), '');
 function carGeo(L) {
-  const t = L / 24, e = t * t * (3 - 2 * t) * .55 + t * .45;   // по-голяма промяна в средата и горе
-  const g = {};
-  for (const k in CAR_A) g[k] = +(CAR_A[k] + (CAR_B[k] - CAR_A[k]) * e).toFixed(2);
-  g.cy = 100 - g.wr;
+  const g = Object.assign({}, CAR_SHAPES[CAR_LV[L][2]]);
+  g.yb = 108 - g.cl * g.wr; g.cy = 108 - g.wr; g.ar = g.wr + 3.2;
+  g.wrx = g.xr + g.ovr; g.wfx = g.wrx + g.wb;
+  g.dx = Math.sqrt(g.ar * g.ar - (g.yb - g.cy) * (g.yb - g.cy));
+  g.belt = x => g.ytr2 + (g.ybl - g.ytr2) * Math.max(0, Math.min(1, (x - g.xrw) / (g.xws - g.xrw)));
+  g.px = g.xr1 + (g.xr2 - g.xr1) * g.bp;
   return g;
 }
-function carBodyD(p) {
-  const ar = +(p.wr + 3.5).toFixed(2);
-  return 'M' + p.xr + ' ' + (p.yb - 6) + ' L' + p.xr + ' ' + (p.ytr + 5) + ' Q' + p.xr + ' ' + p.ytr + ' ' + (p.xr + 6) + ' ' + p.ytr +
-    ' L' + p.xrw + ' ' + p.ytr2 +
-    ' C' + (p.xrw + 6) + ' ' + (p.ytr2 - 8) + ' ' + (p.xr1 - 10) + ' ' + (p.yrf + 2) + ' ' + p.xr1 + ' ' + p.yrf +
-    ' C' + (p.xr1 + 12) + ' ' + (p.yrf - 3) + ' ' + (p.xr2 - 12) + ' ' + (p.yrf - 3) + ' ' + p.xr2 + ' ' + p.yrf +
-    ' C' + (p.xr2 + 10) + ' ' + (p.yrf + 2) + ' ' + (p.xws - 14) + ' ' + (p.ybl - 8) + ' ' + p.xws + ' ' + p.ybl +
-    ' L' + (p.xn - 10) + ' ' + p.yh + ' Q' + p.xn + ' ' + (p.yh + 1) + ' ' + p.xn + ' ' + (p.yh + 8) +
-    ' L' + p.xn + ' ' + (p.yb - 6) + ' Q' + p.xn + ' ' + p.yb + ' ' + (p.xn - 6) + ' ' + p.yb +
-    ' L' + (p.wfx + ar) + ' ' + p.yb + ' A' + ar + ' ' + ar + ' 0 0 0 ' + (p.wfx - ar) + ' ' + p.yb +
-    ' L' + (p.wrx + ar) + ' ' + p.yb + ' A' + ar + ' ' + ar + ' 0 0 0 ' + (p.wrx - ar) + ' ' + p.yb +
-    ' L' + (p.xr + 6) + ' ' + p.yb + ' Q' + p.xr + ' ' + p.yb + ' ' + p.xr + ' ' + (p.yb - 6) + ' Z';
+function cbBodyD(g) {
+  const { xr, xn, ytr, rt, xrw, ytr2, xr1, yrf, xr2, yrf2, xws, ybl, xh, yh, nr, rb, yb, ar, dx, wrx, wfx } = g;
+  return cbP`M${xr} ${yb - rb} L${xr} ${ytr + rt} Q${xr} ${ytr} ${xr + rt} ${ytr} L${xrw} ${ytr2}` +
+    cbP` C${xrw + (xr1 - xrw) * .35} ${ytr2 - (ytr2 - yrf) * .2} ${xr1 - (xr1 - xrw) * .3} ${yrf + (ytr2 - yrf) * .03} ${xr1} ${yrf}` +
+    cbP` C${xr1 + (xr2 - xr1) * .4} ${yrf - 1.6} ${xr2 - (xr2 - xr1) * .4} ${yrf2 - 1.6} ${xr2} ${yrf2}` +
+    cbP` C${xr2 + (xws - xr2) * .38} ${yrf2 + 1.2} ${xws - (xws - xr2) * .3} ${ybl - (ybl - yrf2) * .28} ${xws} ${ybl}` +
+    cbP` C${xws + (xh - xws) * .45} ${ybl + (yh - ybl) * .2} ${xh - (xh - xws) * .25} ${yh} ${xh} ${yh}` +
+    cbP` Q${xn} ${yh} ${xn} ${yh + nr} L${xn} ${yb - rb} Q${xn} ${yb} ${xn - rb} ${yb}` +
+    cbP` L${wfx + dx} ${yb} A${ar} ${ar} 0 1 0 ${wfx - dx} ${yb} L${wrx + dx} ${yb} A${ar} ${ar} 0 1 0 ${wrx - dx} ${yb}` +
+    cbP` L${xr + rb} ${yb} Q${xr} ${yb} ${xr} ${yb - rb} Z`;
 }
-function carWinD(p) {
-  return 'M' + (p.xrw + 8) + ' ' + (p.ytr2 + 1) +
-    ' C' + (p.xrw + 12) + ' ' + (p.ytr2 - 6) + ' ' + (p.xr1 - 6) + ' ' + (p.yrf + 5) + ' ' + (p.xr1 + 1) + ' ' + (p.yrf + 4) +
-    ' C' + (p.xr1 + 12) + ' ' + (p.yrf + 1) + ' ' + (p.xr2 - 12) + ' ' + (p.yrf + 1) + ' ' + (p.xr2 - 1) + ' ' + (p.yrf + 4) +
-    ' C' + (p.xr2 + 8) + ' ' + (p.yrf + 6) + ' ' + (p.xws - 14) + ' ' + (p.ybl - 7) + ' ' + (p.xws - 7) + ' ' + (p.ybl - 1) + ' Z';
+function cbGlassD(g) {
+  const ax = g.xrw + 3.2 + (g.xr1 - g.xrw) * .06, ay = g.ytr2 - .6, bx = g.xr1 + 1.6, by = g.yrf + 3.1,
+    cx = g.xr2 - 1, cy = g.yrf2 + 3.1, dx = g.xws - 4.2 - (g.xws - g.xr2) * .05, dy = g.ybl - .6;
+  return cbP`M${ax} ${ay} C${ax + (bx - ax) * .35} ${ay - (ay - by) * .2} ${bx - (bx - ax) * .3} ${by + (ay - by) * .03} ${bx} ${by}` +
+    cbP` C${bx + (cx - bx) * .4} ${by - 1.3} ${cx - (cx - bx) * .4} ${cy - 1.3} ${cx} ${cy}` +
+    cbP` C${cx + (dx - cx) * .38} ${cy + 1} ${dx - (dx - cx) * .3} ${dy - (dy - cy) * .28} ${dx} ${dy} Z`;
 }
-function carShineD(p) {
-  return 'M' + (p.xr + 10) + ' ' + (p.ytr + 5) + ' Q' + ((p.xr + p.xn) / 2) + ' ' + (p.ybl + 1) + ' ' + (p.xn - 14) + ' ' + (p.yh + 4);
+/* Сцени по класове: небе, далечен и близък план (с паралакс) и земя */
+function csRand(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+function csScene(T) {
+  const r = csRand(T * 97 + 13), sky = (a, b, c) => '<defs><linearGradient id="csSky' + T + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + a + '"/>' +
+    (c ? '<stop offset=".62" stop-color="' + c + '"/>' : '') + '<stop offset="1" stop-color="' + b + '"/></linearGradient></defs><rect width="900" height="220" fill="url(#csSky' + T + ')"/>';
+  const hills = (y, amp, fill, n) => { let d = 'M-120 ' + y; for (let x = -120; x < 1020; x += n) d += ' Q' + (x + n / 2) + ' ' + (y - amp * (.4 + r())) + ' ' + (x + n) + ' ' + y; return '<path d="' + d + ' L1020 220 L-120 220Z" fill="' + fill + '"/>'; };
+  const tree = (x, y, s, c1, c2) => '<rect x="' + (x - 2.5 * s) + '" y="' + (y - 16 * s) + '" width="' + 5 * s + '" height="' + 16 * s + '" fill="#7A5B3E"/><circle cx="' + x + '" cy="' + (y - 24 * s) + '" r="' + 13 * s + '" fill="' + c1 + '"/><circle cx="' + (x + 6 * s) + '" cy="' + (y - 20 * s) + '" r="' + 9 * s + '" fill="' + c2 + '"/>';
+  let h = '<svg viewBox="0 0 900 220" preserveAspectRatio="xMidYMax slice" aria-hidden="true">', far = '', mid = '';
+  if (T === 0) {         // село, облачно и прашно
+    h += sky('#CCC5B4', '#EFE8D8');
+    far += hills(168, 30, '#D5CBB2', 180) + hills(176, 16, '#CABD9E', 120);
+    for (let x = -60; x < 980; x += 160) far += '<rect x="' + x + '" y="112" width="3" height="62" fill="#9C8A6E"/><rect x="' + (x - 8) + '" y="116" width="19" height="2.5" fill="#9C8A6E"/>' +
+      '<path d="M' + (x + 1) + ' 117 Q' + (x + 81) + ' 132 ' + (x + 161) + ' 117" fill="none" stroke="#9C8A6E" stroke-width=".8"/>';
+    mid += '<path d="M150 178 v-38 l34 -20 l34 20 v38z" fill="#B19B78"/><path d="M144 141 l40 -25 l40 25" fill="none" stroke="#8C7556" stroke-width="5"/><rect x="176" y="152" width="14" height="26" fill="#7E6A50"/>';
+    mid += '<path d="M640 178 l3 -46 l-14 -18 M642 140 l14 -20 l8 -4 M643 152 l-18 -6" fill="none" stroke="#7E6A50" stroke-width="4" stroke-linecap="round"/>';
+    for (let x = -80; x < 980; x += 30) mid += '<rect x="' + x + '" y="158" width="4" height="20" fill="#9B8262"/>';
+    mid += '<rect x="-80" y="163" width="1060" height="3" fill="#9B8262"/><rect x="-80" y="171" width="1060" height="3" fill="#9B8262"/>';
+    h += '<g class="far">' + far + '</g><g class="mid">' + mid + '</g><rect y="176" width="900" height="44" fill="#CDB892"/>';
+  } else if (T === 1) {  // градче, слънчева сутрин
+    h += sky('#B6E2FF', '#F3FBFF') + '<circle cx="760" cy="52" r="46" fill="#FFF3B8" opacity=".55"/><circle cx="760" cy="52" r="24" fill="#FFE27A"/>';
+    for (const [x, y, s] of [[140, 46, 1], [420, 30, .8], [600, 70, .7]]) h += '<g fill="#fff" opacity=".9"><ellipse cx="' + x + '" cy="' + y + '" rx="' + 34 * s + '" ry="' + 11 * s + '"/><ellipse cx="' + (x + 14 * s) + '" cy="' + (y - 8 * s) + '" rx="' + 18 * s + '" ry="' + 11 * s + '"/></g>';
+    far += hills(160, 28, '#CBE8C4', 220);
+    const walls = ['#FFF4E6', '#FFE2CF', '#E4F0FF', '#FDF0D5'], roofs = ['#EF7D5C', '#5B9BE6', '#F2B33D', '#8A6FD6'];
+    for (let i = 0, x = -60; x < 980; i++, x += 150 + r() * 40) {
+      const w = 64 + r() * 22, hh = 40 + r() * 16, y = 176 - hh;
+      mid += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="' + walls[i % 4] + '"/><polygon points="' + (x - 6) + ',' + y + ' ' + (x + w / 2) + ',' + (y - 26) + ' ' + (x + w + 6) + ',' + y + '" fill="' + roofs[i % 4] + '"/>' +
+        '<rect x="' + (x + w / 2 - 6) + '" y="' + (176 - 20) + '" width="12" height="20" fill="#9C6B4E"/><rect x="' + (x + 8) + '" y="' + (y + 10) + '" width="12" height="11" fill="#BFE0FF"/><rect x="' + (x + w - 20) + '" y="' + (y + 10) + '" width="12" height="11" fill="#BFE0FF"/>' +
+        tree(x + w + 30, 176, .9 + r() * .3, '#6CC070', '#57AD5C');
+    }
+    h += '<g class="far">' + far + '</g><g class="mid">' + mid + '</g><rect y="174" width="900" height="46" fill="#B9E09E"/><rect y="180" width="900" height="40" fill="#DCE3EA"/>';
+  } else if (T === 2) {  // предградие, ясен ден, градът в далечината
+    h += sky('#86CBFF', '#E6F5FF');
+    for (const [x, y, s] of [[230, 40, 1.1], [520, 58, .8], [800, 34, .9]]) h += '<g fill="#fff" opacity=".92"><ellipse cx="' + x + '" cy="' + y + '" rx="' + 38 * s + '" ry="' + 12 * s + '"/><ellipse cx="' + (x - 12 * s) + '" cy="' + (y - 9 * s) + '" rx="' + 18 * s + '" ry="' + 12 * s + '"/><ellipse cx="' + (x + 14 * s) + '" cy="' + (y - 11 * s) + '" rx="' + 20 * s + '" ry="' + 13 * s + '"/></g>';
+    for (let x = -100; x < 1000; x += 26 + r() * 20) { const hh = 30 + r() * 70; far += '<rect x="' + x + '" y="' + (168 - hh) + '" width="' + (18 + r() * 16) + '" height="' + hh + '" fill="#BFD6EC"/>'; }
+    far += hills(170, 10, '#A9D8A0', 140);
+    for (let i = 0, x = -50; x < 980; i++, x += 190 + r() * 30) {
+      const w = 92, y = 176 - 58;
+      mid += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="58" fill="' + (i % 2 ? '#FFFFFF' : '#F1EAE0') + '"/><polygon points="' + (x - 8) + ',' + y + ' ' + (x + w / 2) + ',' + (y - 30) + ' ' + (x + w + 8) + ',' + y + '" fill="' + (i % 2 ? '#56657A' : '#A9564A') + '"/>' +
+        '<rect x="' + (x + 10) + '" y="' + (y + 8) + '" width="16" height="14" fill="#9FD0F5"/><rect x="' + (x + 38) + '" y="' + (y + 8) + '" width="16" height="14" fill="#9FD0F5"/><rect x="' + (x + 66) + '" y="' + (y + 8) + '" width="16" height="14" fill="#9FD0F5"/>' +
+        '<rect x="' + (x + 10) + '" y="' + (y + 32) + '" width="30" height="26" fill="#D3D9E1"/><rect x="' + (x + 62) + '" y="' + (y + 34) + '" width="13" height="24" fill="#7A5A44"/>' +
+        tree(x + w + 34, 176, 1.25, '#4FAE5E', '#3E9A50') + tree(x + w + 70, 176, .9, '#5DBB66', '#4AA858');
+    }
+    h += '<g class="far">' + far + '</g><g class="mid">' + mid + '</g><rect y="174" width="900" height="46" fill="#9FD38B"/><rect y="180" width="900" height="40" fill="#D7DEE6"/>';
+  } else if (T === 3) {  // център на града, златен час
+    h += sky('#FF9C6B', '#FFE6BF', '#FFC48A') + '<circle cx="230" cy="122" r="60" fill="#FFE3A6" opacity=".45"/><circle cx="230" cy="122" r="32" fill="#FFD27A"/>';
+    for (let x = -100; x < 1000; x += 30 + r() * 26) { const hh = 50 + r() * 100, w = 22 + r() * 20; far += '<rect x="' + x + '" y="' + (172 - hh) + '" width="' + w + '" height="' + hh + '" fill="#E7A27F"/>' + (r() > .7 ? '<rect x="' + (x + w / 2 - 1) + '" y="' + (172 - hh - 16) + '" width="2" height="16" fill="#E7A27F"/>' : ''); }
+    for (let x = -100; x < 1000; x += 64 + r() * 30) {
+      const hh = 60 + r() * 60, w = 46 + r() * 20, y = 176 - hh;
+      mid += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="#3D4864"/>';
+      for (let wy = y + 8; wy < 168; wy += 11) for (let wx = x + 6; wx < x + w - 8; wx += 10) if (r() > .5) mid += '<rect x="' + wx + '" y="' + wy + '" width="5" height="6" fill="#FFD98A" opacity="' + (.55 + r() * .45).toFixed(2) + '"/>';
+    }
+    for (let x = 40; x < 980; x += 180) mid += '<rect x="' + x + '" y="132" width="3" height="44" fill="#2B3247"/><path d="M' + (x + 1.5) + ' 133 q0 -6 10 -6" fill="none" stroke="#2B3247" stroke-width="3"/><circle cx="' + (x + 12) + '" cy="129" r="3.2" fill="#FFE7A8"/>';
+    h += '<g class="far">' + far + '</g><g class="mid">' + mid + '</g><rect y="176" width="900" height="44" fill="#C5B3A3"/>';
+  } else if (T === 4) {  // магистрала по залез
+    h += sky('#3B2A80', '#FFC07A', '#F0607A');
+    let sun = '<defs><linearGradient id="csSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE98A"/><stop offset="1" stop-color="#FF6A88"/></linearGradient></defs><circle cx="450" cy="168" r="70" fill="url(#csSun)"/>';
+    for (let y = 132; y < 172; y += 9) sun += '<rect x="370" y="' + y + '" width="160" height="' + (2 + (y - 132) / 10) + '" fill="#F0607A" opacity=".9"/>';
+    h += sun;
+    for (let i = 0; i < 26; i++) h += '<circle cx="' + (r() * 900).toFixed(0) + '" cy="' + (r() * 60).toFixed(0) + '" r="' + (.6 + r() * .8).toFixed(1) + '" fill="#fff" opacity="' + (.3 + r() * .5).toFixed(2) + '"/>';
+    far += '<path d="M-120 172 L40 104 L120 140 L230 88 L330 150 L420 120 L520 160 L640 92 L760 138 L860 100 L1020 172 Z" fill="#6E3E92"/>';
+    mid += '<path d="M-120 176 L10 140 L90 160 L170 128 L290 168 L560 172 L680 132 L790 162 L900 136 L1020 176 Z" fill="#4A2872"/>';
+    mid += '<rect x="-120" y="166" width="1140" height="3" fill="#B9A3D6" opacity=".7"/>';
+    for (let x = -100; x < 1000; x += 46) mid += '<rect x="' + x + '" y="166" width="2.5" height="10" fill="#B9A3D6" opacity=".7"/>';
+    h += '<g class="far">' + far + '</g><g class="mid">' + mid + '</g><rect y="176" width="900" height="44" fill="#2E1D4A"/>';
+  } else {               // нощен неонов град
+    h += sky('#050819', '#1D1448');
+    for (let i = 0; i < 70; i++) h += '<circle class="cs-star" style="--i:' + i + '" cx="' + (r() * 900).toFixed(0) + '" cy="' + (r() * 110).toFixed(0) + '" r="' + (.5 + r() * 1.1).toFixed(1) + '" fill="#fff"/>';
+    h += '<circle cx="780" cy="44" r="20" fill="#F2EEFF"/><circle cx="790" cy="38" r="18" fill="#0A0E26"/>';
+    for (let x = -100; x < 1000; x += 26 + r() * 22) {
+      const hh = 50 + r() * 100, w = 20 + r() * 18, y = 172 - hh;
+      far += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="#161C42"/>';
+      for (let wy = y + 6; wy < 168; wy += 9) for (let wx = x + 4; wx < x + w - 5; wx += 7) if (r() > .78) far += '<rect x="' + wx + '" y="' + wy + '" width="3" height="4" fill="' + ['#5CE1FF', '#FF5CC8', '#FFE07A'][(r() * 3) | 0] + '" opacity=".85"/>';
+    }
+    const neon = ['#FF3EA5', '#3EE6FF', '#B67CFF', '#FFE14D'];
+    for (let i = 0, x = -80; x < 1000; i++, x += 120 + r() * 50) {
+      const hh = 46 + r() * 50, w = 60 + r() * 30, y = 176 - hh, c = neon[i % 4];
+      mid += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="#0B0F2C"/>' +
+        '<rect class="cs-neon" x="' + (x + 8) + '" y="' + (y + 8) + '" width="' + (w - 16) + '" height="10" rx="5" fill="none" stroke="' + c + '" stroke-width="2" style="color:' + c + '"/>' +
+        '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="2" fill="' + c + '" opacity=".6"/>';
+    }
+    h += '<g class="far">' + far + '</g><g class="mid">' + mid + '</g><rect y="176" width="900" height="44" fill="#0C1028"/>';
+  }
+  return h + '</svg>';
 }
-function carStripeD(p) {
-  return 'M' + (p.xr + 4) + ' ' + (p.ytr + 13) + ' L' + (p.xn - 6) + ' ' + (p.yh + 13);
-}
-function carWheel(cls) {
-  return '<g class="car-wheel ' + cls + '"><circle class="car-tire" r="16"/>' +
-    '<g class="car-rim"><circle class="car-rim-disc" r="11"/><circle class="car-cap" r="10.4"/>' +
-    '<g class="car-spokes">' + [0, 72, 144, 216, 288].map(a => '<path d="M-1.1 -2.6 L-3.1 -10.2 Q0 -11 3.1 -10.2 L1.1 -2.6 Z" transform="rotate(' + a + ')"/>').join('') + '</g>' +
-    '<circle class="car-hub" r="2.4"/><circle class="car-holes" r="6.6" fill="none" stroke-dasharray="2 3.2"/></g>' +
-    '<path class="car-caliper" d="M-9.5 -6.5a11.4 11.4 0 0 1 6-4.4" /></g>';
+/* Колело: гума, джанта (5 вида), спирачен апарат и неонов ръб */
+function cbWheel(cls) {
+  const rot = (n, d, p) => Array.from({ length: n }, (_, i) => '<path d="' + d + '" transform="rotate(' + (i * 360 / n + (p || 0)) + ')"/>').join('');
+  return '<g class="cw ' + cls + '"><circle class="cw-tire" r="16"/><circle class="cw-side" r="14.6"/><circle class="cw-white" r="12.4"/>' +
+    '<g class="cw-face"><circle class="cw-disc" r="11.3"/>' +
+    '<g class="cw-g cw-steel">' + [45, 135, 225, 315].map(a => '<circle r="1.3" cx="' + (5.2 * Math.cos(a * Math.PI / 180)).toFixed(2) + '" cy="' + (5.2 * Math.sin(a * Math.PI / 180)).toFixed(2) + '"/>').join('') + '<circle r="3" fill="#565C66"/></g>' +
+    '<g class="cw-g cw-cap"><circle r="10.4" class="cw-spk"/><circle r="6.8" class="cw-cap-in"/><circle r="3.4" class="cw-cap-in"/>' + rot(8, 'M-.6 -9.6 h1.2 v2.4 h-1.2z') + '</g>' +
+    '<g class="cw-g cw-alloy cw-spk">' + rot(5, 'M-1.7 -2.6 L-3.5 -10.7 Q0 -11.5 3.5 -10.7 L1.7 -2.6 Z') + '</g>' +
+    '<g class="cw-g cw-multi cw-spk">' + rot(10, 'M-.75 -2.4 L-1.7 -10.9 L1.7 -10.9 L.75 -2.4 Z') + '</g>' +
+    '<g class="cw-g cw-forged cw-spk">' + rot(5, 'M-.6 -2.6 L-3.6 -10.8 L-1.6 -11 L.4 -3.4 Z') + rot(5, 'M.6 -2.6 L3.6 -10.8 L1.6 -11 L-.4 -3.4 Z') + '</g>' +
+    '<g class="cw-g cw-turbine cw-spk">' + rot(9, 'M0 -2.6 C2.6 -5 2.4 -8.6 -.6 -11 L1.6 -11 C4.6 -8 4.2 -4.4 1.4 -2.2 Z') + '</g>' +
+    '<circle class="cw-lip" r="11"/><circle class="cw-hub" r="2.3"/></g>' +
+    '<path class="cw-cal" d="M-9.4 -5.6 A11 11 0 0 1 -3.6 -10.3"/><circle class="cw-neon" r="12.3"/></g>';
 }
 function carSVG() {
-  return '<svg class="car-svg" viewBox="0 0 240 110" aria-hidden="true">' +
-    '<defs><linearGradient id="carPaint" x1="0" y1="0" x2="0" y2="1"><stop class="car-p1" offset="0"/><stop class="car-p2" offset=".55"/><stop class="car-p3" offset="1"/></linearGradient>' +
-    '<linearGradient id="carGlass" x1="0" y1="0" x2="1" y2="1"><stop class="car-g1" offset="0"/><stop class="car-g2" offset="1"/></linearGradient>' +
-    '<radialGradient id="carGlow"><stop offset="0" stop-color="#EAF6FF" stop-opacity=".95"/><stop offset="1" stop-color="#9FD3FF" stop-opacity="0"/></radialGradient></defs>' +
-    '<ellipse class="car-shadow" cx="120" cy="101" rx="104" ry="4"/>' +
-    '<ellipse class="car-under" cx="122" cy="99" rx="96" ry="6"/>' +
-    '<g class="car-smoke"><circle cx="16" cy="84" r="4"/><circle cx="10" cy="80" r="5"/><circle cx="4" cy="74" r="6"/></g>' +
-    '<g class="car-speed"><path d="M-14 62h18M-22 72h22M-12 82h14"/></g>' +
-    '<path class="car-spoiler" d="M-3 -8h22M5 -8v8M13 -8v8"/>' +
-    '<path class="car-body"/>' +
-    '<rect class="car-primer" x="98" y="62" width="30" height="20" rx="2"/>' +
-    '<g class="car-rust"><path d="M44 66c3-2 7-1 8 2s-2 6-5 5-5-4-3-7z"/><path d="M148 72c4-1 7 1 7 4s-4 4-6 3-4-5-1-7z"/><path d="M104 76c2-1 5 0 5 2s-3 3-4 2-3-3-1-4z"/><circle cx="186" cy="66" r="2"/></g>' +
-    '<path class="car-stripe"/>' +
-    '<path class="car-shine"/>' +
-    '<path class="car-win" fill="url(#carGlass)"/>' +
-    '<path class="car-pillar"/>' +
-    '<path class="car-crack" d="M144 40l4 5-3 4 5 6M148 45l5-2"/>' +
-    '<path class="car-antenna" d="M34 55L24 26"/>' +
-    '<rect class="car-bumper" x="-2" y="0" width="16" height="4" rx="1.5"/>' +
-    '<circle class="car-head-old" r="4.4"/>' +
-    '<path class="car-head-led" d="M-15 -1.5 L-1 1"/>' +
-    '<ellipse class="car-glow" rx="16" ry="7" fill="url(#carGlow)"/>' +
-    '<rect class="car-tail" x="-1" y="0" width="5" height="7" rx="1.4"/>' +
-    carWheel('rear') + carWheel('front') +
-    '<g class="car-sparkles">' + [[20, 22, 1], [212, 30, .8], [126, 12, .7], [62, 18, .55]].map(([x, y, s], i) =>
-      '<path style="--i:' + i + '" transform="translate(' + x + ' ' + y + ') scale(' + s + ')" d="M0-7C.8-1.6 1.6-.8 7 0 1.6.8.8 1.6 0 7-.8 1.6-1.6.8-7 0-1.6-.8-.8-1.6 0-7z"/>').join('') + '</g>' +
+  const star = (x, y, s, i) => '<path style="--i:' + i + '" transform="translate(' + x + ' ' + y + ') scale(' + s + ')" d="M0-7C.8-1.6 1.6-.8 7 0 1.6.8.8 1.6 0 7-.8 1.6-1.6.8-7 0-1.6-.8-.8-1.6 0-7z"/>';
+  return '<svg class="car-svg" viewBox="0 0 260 120" aria-hidden="true"><defs>' +
+    '<linearGradient id="cbPaint" x1="0" y1="0" x2="0" y2="1"><stop class="cb-p1" offset="0"/><stop class="cb-p2" offset=".5"/><stop class="cb-p3" offset="1"/></linearGradient>' +
+    '<linearGradient id="cbGlass" x1="0" y1="0" x2="1" y2="1"><stop class="cb-g1" offset="0"/><stop class="cb-g2" offset="1"/></linearGradient>' +
+    '<linearGradient id="cbSweepG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
+    '<linearGradient id="cbBeam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F4FAFF" stop-opacity=".75"/><stop offset="1" stop-color="#F4FAFF" stop-opacity="0"/></linearGradient>' +
+    '<radialGradient id="cbGlowG"><stop offset="0" stop-color="#EAF6FF" stop-opacity=".95"/><stop offset="1" stop-color="#9FD3FF" stop-opacity="0"/></radialGradient>' +
+    '<linearGradient id="cbFlameG" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#FFF3B0"/><stop offset=".4" stop-color="#FF9A1F"/><stop offset="1" stop-color="#FF3D1F" stop-opacity="0"/></linearGradient>' +
+    '<pattern id="cbCarbon" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="#1C1F26"/><rect width="1.5" height="1.5" fill="#2C313B"/><rect x="1.5" y="1.5" width="1.5" height="1.5" fill="#2C313B"/></pattern>' +
+    '<clipPath id="cbClip"><path class="cb-clip"/></clipPath><clipPath id="cbRoofClip"><polygon class="cb-roofclip" points="0,0 260,0 260,60 0,60"/></clipPath>' +
+    '<clipPath id="cbGlassClip"><path class="cb-glassclip"/></clipPath></defs>' +
+    '<g class="cb-trails"><path d="M-110 0 H0"/><path d="M-90 0 H0"/><path d="M-130 0 H0"/></g>' +
+    '<ellipse class="cb-under" rx="100" ry="5"/>' +
+    '<ellipse class="cb-shadow" rx="100" ry="3.6"/>' +
+    '<g class="cb-speed"><path d="M0 0 h-22"/><path d="M-6 10 h-28"/><path d="M2 20 h-18"/></g>' +
+    '<g class="cb-flames"><path class="cb-flame" d="M0 0 C-6 -3 -14 -1 -20 0 C-14 1 -6 3 0 0 Z" fill="url(#cbFlameG)"/><path class="cb-flame" d="M0 4 C-5 1.5 -11 3 -16 4 C-11 5 -5 6.5 0 4 Z" fill="url(#cbFlameG)"/></g>' +
+    '<g class="cb-smoke"><circle r="4"/><circle r="5"/><circle r="6"/></g>' +
+    '<g class="cb-tilt"><g class="cb-anim"><g class="cb-shake">' +
+    '<path class="cb-beam" d="M0 -3 L96 -16 L96 22 Z"/>' +
+    '<g class="cb-spoiler"><path class="sp-lip" d="M0 1 Q5 -3.5 13 -3 L12 -.4 Q6 -.6 1 2.4 Z"/><path class="sp-duck" d="M-1 1.5 Q6 -7 19 -6.5 L17.4 -2.6 Q9 -2.4 1 3 Z"/>' +
+    '<g class="sp-wing"><path d="M7 0 L5 -11 M19 0 L18 -11" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M-3 -14 H31 Q33 -14 32.4 -12 L31.6 -10 H-2.4 Q-4 -10 -3.6 -12 Z"/></g></g>' +
+    '<path class="cb-antenna"/>' +
+    '<path class="cb-well"/>' +
+    '<path class="cb-body"/>' +
+    '<g clip-path="url(#cbRoofClip)"><path class="cb-roof"/></g>' +
+    '<g clip-path="url(#cbClip)">' +
+      '<path class="cb-hood"/>' +
+      '<rect class="wr-primer" x="126" y="64" width="40" height="32" rx="2" fill="#9EA4AC"/>' +
+      '<g class="wr-rust" fill="#7A4A22"><path d="M48 72c4-3 9-2 10 2s-3 8-7 7-6-5-3-9z"/><path d="M146 88c5-2 9 0 9 4s-5 5-8 4-5-6-1-8z"/><path d="M198 76c3-2 7-1 7 3s-4 5-6 4-3-5-1-7z"/><path d="M100 90c3-1 6 0 6 3s-4 3-5 2-3-4-1-5z"/><circle cx="214" cy="88" r="2.4"/><circle cx="62" cy="88" r="1.8"/></g>' +
+      '<path class="cb-stripes"/><path class="cb-pin"/>' +
+      '<path class="cb-crease"/><path class="cb-lower"/><path class="cb-gloss"/>' +
+      '<rect class="cb-sweep" x="0" y="0" width="34" height="120"/>' +
+    '</g>' +
+    '<path class="cb-seams"/><g class="cb-handles"><rect class="cb-handle" width="7" height="1.8" rx=".9"/><rect class="cb-handle" width="7" height="1.8" rx=".9"/></g>' +
+    '<path class="cb-clad"/><path class="cb-skirt"/><path class="cb-intake"/>' +
+    '<path class="cb-glass"/>' +
+    '<g clip-path="url(#cbGlassClip)"><path class="cb-refl"/></g>' +
+    '<path class="wr-crack" d="M158 44l3 5-2 4 4 6M161 49l5-2M159 53l-4 3" fill="none" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>' +
+    '<path class="cb-pillar"/><path class="cb-pano"/><path class="cb-rails"/><path class="cb-fin"/>' +
+    '<path class="cb-mirror" d="M0 0 H-8.5 Q-11 0 -11 -2.6 Q-11 -5 -8.5 -5 H-1.5 Z"/>' +
+    '<g class="cb-head"><path class="cb-glow" d="M-16 -7 h30 v14 h-30z" opacity="0"/><circle class="hl-round" cx="-3" cy="1" r="3.4" fill="#FFF3C4" stroke="#B9BFC7" stroke-width="1"/>' +
+      '<rect class="hl-rect" x="-9.5" y="-1.5" width="9.5" height="4.8" rx="1.8" fill="#F4F9FF" stroke="#97A2B1" stroke-width=".8"/>' +
+      '<path class="hl-led" d="M-16 -1.4 L-1 1.4" stroke="#EAF6FF" stroke-width="2.4" stroke-linecap="round" fill="none"/>' +
+      '<g class="hl-mx" fill="#fff"><circle cx="-12" cy="-.6" r=".9"/><circle cx="-8" cy=".2" r=".9"/><circle cx="-4" cy=".9" r=".9"/></g></g>' +
+    '<circle class="cb-fog" r="1.9" fill="#FFF6C9"/>' +
+    '<g class="cb-tail"><circle class="tl-round" cx="2.6" cy="2" r="2.8" fill="#F08A2C"/><rect class="tl-rect" x="-.6" y="-1" width="5" height="7.5" rx="1.5" fill="#E5303E"/>' +
+      '<path class="tl-led" d="M-.4 .4 L10 -.8" stroke="#FF2D4A" stroke-width="2.2" stroke-linecap="round" fill="none"/><path class="tl-bar" d="M-.4 .4 L16 -1.4" stroke="#FF2D4A" stroke-width="2.6" stroke-linecap="round" fill="none"/></g>' +
+    '<g class="cb-bump cb-bump-r"><rect width="14" height="5.5" rx="2"/></g><g class="cb-bump cb-bump-f"><rect width="14" height="5.5" rx="2"/></g>' +
+    '<g class="cb-exh"><rect class="ex-1" x="-7" y="-1.4" width="8" height="2.8" rx="1.3"/><g class="ex-2"><rect x="-5" y="-1.3" width="6" height="2.6" rx="1.3"/><rect x="2" y="-1.3" width="6" height="2.6" rx="1.3"/></g>' +
+      '<g class="ex-4"><rect x="-5" y="-1.3" width="5.5" height="2.6" rx="1.3"/><rect x="1.5" y="-1.3" width="5.5" height="2.6" rx="1.3"/><rect x="11" y="-1.3" width="5.5" height="2.6" rx="1.3"/><rect x="17.5" y="-1.3" width="5.5" height="2.6" rx="1.3"/></g></g>' +
+    '</g></g></g>' +
+    cbWheel('rear') + cbWheel('front') +
+    '<g class="wr-flies"><circle class="cb-fly" r=".9"/><circle class="cb-fly" r=".8"/><circle class="cb-fly" r=".9"/></g>' +
+    '<g class="cb-spark">' + [[18, 30, .9], [236, 40, .8], [128, 18, .7], [70, 22, .55], [196, 20, .6], [36, 60, .5]].map(([x, y, s], i) => star(x, y, s, i)).join('') + '</g>' +
     '</svg>';
 }
-const CAR = { L: -1, p: -1, el: null, t: 0 };
+const CAR = { L: -1, T: -1, p: -1, el: null, t: 0, tp: 0 };
 function setupCarStage() {
   const st = document.getElementById('carStage');
   if (!st || st.dataset.ready) return;
-  st.innerHTML = '<div class="car-road"></div><div class="car-label"><b class="car-name"></b><small class="car-lvl"></small></div><div class="car-ride">' + carSVG() + '</div>';
+  st.innerHTML = CAR_TIERS.map((t, i) => '<div class="cs-bg' + (i < 4 ? ' day' : '') + '" data-t="' + i + '">' + csScene(i) + '</div>').join('') +
+    '<div class="cs-road"></div>' +
+    '<div class="cs-hud"><span class="cs-tier"><i></i><b class="cs-tname"></b></span><b class="cs-name"></b><small class="cs-lvl"></small></div>' +
+    '<div class="cs-meter"><div class="cs-segs">' + CAR_TIERS.map(t => '<i style="--c:' + t.c + '" title="' + t.name + '"></i>').join('') + '</div>' +
+    '<div class="cs-ends"><span>' + CAR_TIERS[0].name + '</span><span>' + CAR_TIERS[5].name + '</span></div><div class="cs-next"></div></div>' +
+    '<div class="car-ride"><div class="cs-burst"></div><div class="cs-pop"><i>✦</i><span></span></div>' + carSVG() + '</div>';
   st.dataset.ready = '1';
   CAR.el = st;
 }
-const carSet = (root, sel, prop, val) => root.querySelectorAll(sel).forEach(e => { e.style[prop] = val; });
+/* Прилага вида на ниво L върху колата */
+function carApply(svg, L) {
+  const lv = CAR_LV[L], T = lv[1], g = carGeo(L), q = s => svg.querySelector(s), qa = s => svg.querySelectorAll(s);
+  const sty = (sel, o) => qa(sel).forEach(e => Object.assign(e.style, o));
+  const op = (sel, v) => sty(sel, { opacity: v });
+  const tr = (sel, x, y, extra) => sty(sel, { transform: 'translate(' + (+x).toFixed(2) + 'px,' + (+y).toFixed(2) + 'px)' + (extra || '') });
+  const dd = (sel, d) => sty(sel, { d: 'path("' + d + '")' });
+  const paint = lv[3], glass = lv[4];
+  // каросерия, покрив и стъкла
+  const body = cbBodyD(g), gl = cbGlassD(g);
+  dd('.cb-body', body); dd('.cb-clip', body); dd('.cb-roof', body); dd('.cb-glass', gl); dd('.cb-glassclip', gl);
+  q('.cb-roofclip').setAttribute('points', '0,0 260,0 260,' + (g.ybl - .3) + ' ' + g.xws + ',' + (g.ybl - .3) + ' ' + g.xrw + ',' + (g.ytr2 - .3) + ' 0,' + (g.ytr2 - .3));
+  const chrome = L === 23, gold = L === 24;
+  q('.cb-p1').style.stopColor = chrome ? '#F1E9FF' : gold ? '#FFF4C4' : carShade(paint, .32);
+  q('.cb-p2').style.stopColor = paint;
+  q('.cb-p3').style.stopColor = chrome ? '#3B1A8A' : gold ? '#9A6A12' : carShade(paint, -.36);
+  q('.cb-g1').style.stopColor = carShade(glass, .3);
+  q('.cb-g2').style.stopColor = glass;
+  svg.style.setProperty('--roof', L === 5 ? '#F7F8FA' : '#141820');
+  op('.cb-roof', L === 5 || L === 17 ? 1 : 0);
+  // линии по каросерията
+  const mx = (g.xr + g.xn) / 2, yMid = (g.ytr + g.yb) / 2;
+  dd('.cb-crease', cbP`M${g.xr + 2} ${g.ytr + 7} Q${mx} ${g.belt(mx) + 6} ${g.xn - 3} ${g.yh + 5}`);
+  dd('.cb-lower', cbP`M${g.wrx + g.dx + 2} ${g.yb - 6.5} L${g.wfx - g.dx - 2} ${g.yb - 7.5}`);
+  dd('.cb-gloss', cbP`M${g.xr + 8} ${g.ytr + 3} Q${mx} ${g.belt(mx) + 1.5} ${g.xn - 12} ${g.yh + 2.5}`);
+  op('.cb-gloss', T === 0 ? 0 : Math.min(.6, .12 + L * .022));
+  dd('.cb-stripes', cbP`M${g.xr + 2} ${yMid + 1} L${g.xn - 3} ${(g.yh + g.yb) / 2 + 1} M${g.xr + 2} ${yMid + 5.5} L${g.xn - 3} ${(g.yh + g.yb) / 2 + 5.5}`);
+  sty('.cb-stripes', { opacity: L === 18 ? 1 : 0, stroke: '#fff' });
+  dd('.cb-pin', cbP`M${g.xr + 3} ${g.ytr + 9} Q${mx} ${g.belt(mx) + 8} ${g.xn - 4} ${g.yh + 7}`);
+  op('.cb-pin', L === 16 ? 1 : 0);
+  // врати, дръжки и колони
+  const s1 = g.wfx - g.dx - 3, s2 = g.px + 2, s3 = g.dr === 4 ? Math.max(g.wrx + g.dx + 3, g.xrw + 8) : s2;
+  dd('.cb-seams', cbP`M${s1} ${g.belt(s1) + 1} L${s1 - 1.5} ${g.yb - 3} M${s2} ${g.belt(s2) + 1} L${s2} ${g.yb - 3} M${s3} ${g.belt(s3) + 2} L${s3 + 1} ${g.yb - 3}`);
+  op('.cb-seams', T === 0 && L < 3 ? .55 : 1);
+  const hs = qa('.cb-handle');
+  hs[0].style.transform = 'translate(' + (s2 + 4).toFixed(2) + 'px,' + (g.belt(s2) + 5).toFixed(2) + 'px)';
+  hs[1].style.transform = 'translate(' + (s3 + 4).toFixed(2) + 'px,' + (g.belt(s3) + 5).toFixed(2) + 'px)';
+  hs[1].style.opacity = g.dr === 4 ? 1 : 0;
+  const pBelt = g.belt(g.px + 2.5);
+  dd('.cb-pillar', cbP`M${g.px} ${g.yrf + (g.yrf2 - g.yrf) * g.bp + 2.4} L${g.px + 2.5} ${pBelt - .4}`);
+  sty('.cb-pillar', { stroke: L >= 13 || L === 5 || L === 17 ? '#141820' : carShade(paint, -.2) });
+  sty('.cb-glass', { stroke: L >= 17 ? '#141820' : L >= 10 ? '#DCE3EB' : L === 3 ? '#E8ECF0' : 'rgba(8,16,34,.35)' });
+  dd('.cb-refl', cbP`M${g.xws - 10} ${g.ybl} L${g.xr2 - 14} ${g.yrf2} L${g.xr2 - 4} ${g.yrf2} L${g.xws - 2} ${g.ybl} Z M${g.px - 14} ${pBelt} L${g.px - 24} ${g.yrf} L${g.px - 19} ${g.yrf} L${g.px - 9} ${pBelt} Z`);
+  // покрив: панорама, релси, перка, антена
+  dd('.cb-pano', cbP`M${g.xr1 + 8} ${g.yrf + .6} C${g.xr1 + 24} ${g.yrf - .8} ${g.xr2 - 24} ${g.yrf2 - .8} ${g.xr2 - 8} ${g.yrf2 + .6}`);
+  op('.cb-pano', [12, 13, 15, 16].includes(L) ? 1 : 0);
+  dd('.cb-rails', cbP`M${g.xr1 + 3} ${g.yrf - 3.4} L${g.xr2 - 5} ${g.yrf2 - 3.4} M${g.xr1 + 8} ${g.yrf - 3.4} L${g.xr1 + 8} ${g.yrf - .6} M${g.xr2 - 10} ${g.yrf2 - 3.4} L${g.xr2 - 10} ${g.yrf2 - .6}`);
+  op('.cb-rails', L === 9 ? 1 : 0);
+  dd('.cb-fin', cbP`M${g.xr1 + 8} ${g.yrf + .4} L${g.xr1 + 11} ${g.yrf - 4.2} L${g.xr1 + 17} ${g.yrf + .4} Z`);
+  sty('.cb-fin', { opacity: L >= 10 && L <= 21 ? 1 : 0, fill: carShade(paint, -.25) });
+  dd('.cb-antenna', cbP`M${g.xrw - 4} ${g.ytr2 + .5} L${g.xrw - 14} ${g.ytr2 - 30}`);
+  op('.cb-antenna', L <= 4 ? 1 : 0);
+  // огледало
+  tr('.cb-mirror', g.xws - 1, g.ybl + 1);
+  sty('.cb-mirror', { fill: L <= 3 ? '#C9CED6' : L === 4 ? '#262A33' : L >= 20 && L <= 21 ? 'url(#cbCarbon)' : paint });
+  // кросоувър: черни обшивки на калниците
+  dd('.cb-clad', cbP`M${g.wrx - g.ar - 1} ${g.yb} A${g.ar + 1} ${g.ar + 1} 0 1 1 ${g.wrx + g.ar + 1} ${g.yb} M${g.wfx - g.ar - 1} ${g.yb} A${g.ar + 1} ${g.ar + 1} 0 1 1 ${g.wfx + g.ar + 1} ${g.yb}`);
+  op('.cb-clad', L === 9 ? 1 : 0);
+  dd('.cb-well', cbP`M${g.wrx - g.dx} ${g.yb} A${g.ar} ${g.ar} 0 1 1 ${g.wrx + g.dx} ${g.yb} Z M${g.wfx - g.dx} ${g.yb} A${g.ar} ${g.ar} 0 1 1 ${g.wfx + g.dx} ${g.yb} Z`);
+  const ix = g.wrx + g.dx + 4;
+  dd('.cb-intake', cbP`M${ix} ${g.yb - 7} L${ix} ${g.belt(ix) + 5} L${ix + 30} ${g.belt(ix + 30) + 8} L${ix + 15} ${g.yb - 7} Z`);
+  op('.cb-intake', L >= 20 ? .9 : 0);
+  dd('.cb-skirt', cbP`M${g.wrx + g.dx + 1} ${g.yb - 1.6} L${g.wfx - g.dx - 1} ${g.yb - 1.6}`);
+  sty('.cb-skirt', { opacity: L === 9 || L >= 18 ? 1 : 0, stroke: L >= 20 ? 'url(#cbCarbon)' : L === 9 ? '#30353F' : carShade(paint, -.45) });
+  // карбонов капак
+  const hx1 = g.xws + 3, hx2 = g.xh;
+  dd('.cb-hood', cbP`M${g.xws} ${g.ybl - .5} C${g.xws + (g.xh - g.xws) * .45} ${g.ybl + (g.yh - g.ybl) * .2 - .5} ${g.xh - (g.xh - g.xws) * .25} ${g.yh - .5} ${hx2} ${g.yh - .5} Q${g.xn + 1} ${g.yh - .5} ${g.xn + 1} ${g.yh + g.nr} L${g.xn + 1} ${g.yh + g.nr + 3} L${hx2 - 2} ${g.yh + 4} C${g.xh - (g.xh - g.xws) * .3} ${g.yh + 4} ${hx1 + 8} ${g.ybl + 4} ${hx1} ${g.ybl + 3.5} Z`);
+  op('.cb-hood', L === 21 ? 1 : 0);
+  // ръжда, грунд, пукнатина, мухи, дим
+  op('.wr-rust', L === 0 ? 1 : L === 1 ? .75 : L === 2 ? .35 : 0);
+  op('.wr-primer', L <= 2 ? 1 : 0);
+  op('.wr-crack', L === 0 ? 1 : 0);
+  op('.wr-flies', L <= 1 ? 1 : 0);
+  q('.wr-flies').style.transform = 'translate(' + (g.xr + 6) + 'px,' + (g.ytr - 12) + 'px)';
+  op('.cb-smoke', L <= 2 ? 1 : 0);
+  sty('.cb-smoke circle', { fill: L === 0 ? '#4A4F57' : L === 1 ? '#7D848E' : '#A9B0BA' });
+  const sm = qa('.cb-smoke circle');
+  [[0, 0], [-6, -4], [-12, -9]].forEach(([x, y], i) => { sm[i].setAttribute('cx', (g.xr - 4 + x).toFixed(1)); sm[i].setAttribute('cy', (g.yb - 3 + y).toFixed(1)); });
+  // брони
+  const bump = L <= 3 ? '#D5DBE3' : L === 4 ? '#2C313B' : 'transparent';
+  sty('.cb-bump rect', { fill: L <= 2 ? '#8A6A52' : bump });
+  op('.cb-bump', L <= 4 ? 1 : 0);
+  q('.cb-bump-r').style.transform = 'translate(' + (g.xr - 3) + 'px,' + (g.yb - 12) + 'px)' + (L <= 1 ? ' rotate(-16deg)' : '');
+  q('.cb-bump-f').style.transform = 'translate(' + (g.xn - 11) + 'px,' + (g.yb - 12) + 'px)';
+  // фарове, стопове, халогени, светлини
+  tr('.cb-head', g.xn - .5, g.yh + Math.min(g.nr * .55, 5) + 2.5);
+  op('.hl-round', L <= 5 ? 1 : 0); op('.hl-rect', L === 6 || L === 7 ? 1 : 0); op('.hl-led', L >= 8 ? 1 : 0); op('.hl-mx', L >= 13 ? 1 : 0);
+  sty('.hl-led', { stroke: L >= 22 ? '#BFE6FF' : '#EAF6FF' });
+  op('.cb-glow', L >= 8 ? (T >= 4 ? .95 : .6) : 0);
+  tr('.cb-beam', g.xn + 1, g.yh + Math.min(g.nr * .55, 5) + 3);
+  op('.cb-beam', T === 5 ? .9 : T === 4 ? .45 : 0);
+  tr('.cb-fog', g.xn - 3.5, g.yb - 7);
+  op('.cb-fog', L >= 11 ? 1 : 0);
+  tr('.cb-tail', g.xr - .2, g.ytr + Math.min(g.rt * .6, 6) + 1.5);
+  op('.tl-round', L <= 3 ? 1 : 0); op('.tl-rect', L >= 4 && L <= 9 ? 1 : 0); op('.tl-led', L >= 10 && L <= 17 ? 1 : 0); op('.tl-bar', L >= 18 ? 1 : 0);
+  // спойлери
+  tr('.cb-spoiler', g.xr + Math.min(g.rt * .5, 4), g.ytr);
+  op('.sp-lip', L === 8 || L === 17 ? 1 : 0); op('.sp-duck', L === 18 || L === 19 ? 1 : 0); op('.sp-wing', L >= 20 ? 1 : 0);
+  if (L === 8) tr('.sp-lip', g.xr1 + 5 - g.xr - Math.min(g.rt * .5, 4), g.yrf - g.ytr + 1, ' scaleX(-1)');   // хечбек: спойлер над задното стъкло
+  else tr('.sp-lip', 0, 0);
+  sty('.cb-spoiler path', { fill: L >= 20 && L <= 21 ? 'url(#cbCarbon)' : L >= 22 ? '#15181F' : carShade(paint, -.3), stroke: L >= 22 ? '#15181F' : carShade(paint, -.3) });
+  // ауспуси, пламъци, следи от светлина, скорост
+  tr('.cb-exh', g.xr + 6, g.yb - 1.5);
+  op('.ex-1', L <= 9 ? 1 : 0); op('.ex-2', L >= 10 && L <= 17 ? 1 : 0); op('.ex-4', L >= 18 ? 1 : 0);
+  sty('.cb-exh rect', { fill: L <= 2 ? '#6B4E3A' : '#A9B1BC' });
+  tr('.cb-flames', g.xr - 1, g.yb - 3);
+  q('.cb-flames').classList.toggle('on', L >= 18);
+  tr('.cb-speed', g.xr - 6, g.ytr + 2);
+  q('.cb-speed').classList.toggle('on', T >= 3);
+  sty('.cb-speed', { color: T >= 4 ? '#FFFFFF' : '#5B6578' });
+  tr('.cb-trails', g.xr + 4, g.ytr + 6);
+  op('.cb-trails', L >= 23 ? .9 : 0);
+  sty('.cb-trails path', { stroke: CAR_NEON[L] || '#fff' });
+  qa('.cb-trails path').forEach((p, i) => { p.style.transform = 'translateY(' + [0, 6, 12][i] + 'px)'; });
+  // неон отдолу, сянка, искри
+  sty('.cb-under', { fill: CAR_NEON[L] || 'transparent', transform: 'translate(' + ((g.wrx + g.wfx) / 2).toFixed(1) + 'px,106px) scaleX(' + ((g.wb + 30) / 200).toFixed(3) + ')' });
+  op('.cb-under', L >= 22 ? 1 : 0);
+  q('.cb-shadow').style.transform = 'translate(' + mx.toFixed(1) + 'px,108.4px) scaleX(' + ((g.xn - g.xr) / 200 + .04).toFixed(3) + ')';
+  op('.cb-spark', L >= 22 ? 1 : 0);
+  sty('.cb-spark path', { fill: L === 24 ? '#FFD24A' : (CAR_NEON[L] || '#FFD24A') });
+  // наклон на старата кола (пропаднало отзад)
+  q('.cb-tilt').style.transform = L <= 2 ? 'rotate(' + [-1.8, -1.1, -.5][L] + 'deg)' : 'none';
+  // колела
+  const rim = CAR_RIMS[lv[5]];
+  ['rear', 'front'].forEach(w => {
+    const wh = q('.cw.' + w), wx = w === 'rear' ? g.wrx : g.wfx;
+    wh.style.transform = 'translate(' + wx.toFixed(2) + 'px,' + g.cy.toFixed(2) + 'px) scale(' + (g.wr / 16).toFixed(3) + ')';
+    wh.querySelector('.cw-face').style.transform = '';
+    wh.querySelector('.cw-face').style.scale = rim.k;
+    wh.querySelector('.cw-disc').style.fill = L <= 2 ? '#5A4636' : rim.disc;
+    wh.querySelectorAll('.cw-g').forEach(e => { e.style.opacity = e.classList.contains('cw-' + rim.g) ? 1 : 0; });
+    wh.querySelectorAll('.cw-spk').forEach(e => { e.style.fill = rim.rim; });
+    wh.querySelector('.cw-lip').style.stroke = L <= 2 ? '#6B5240' : rim.g === 'turbine' ? (CAR_NEON[L] || rim.rim) : rim.lip || rim.rim;
+    wh.querySelector('.cw-hub').style.fill = rim.g === 'forged' || rim.g === 'turbine' ? (L === 24 || rim === CAR_RIMS.gold ? '#D4A24C' : '#2C313B') : '#9AA2AD';
+    wh.querySelector('.cw-white').style.opacity = rim.white ? 1 : 0;
+    wh.querySelector('.cw-cal').style.opacity = L >= 14 ? 1 : 0;
+    wh.querySelector('.cw-cal').style.stroke = L >= 22 ? (CAR_NEON[L] || '#E5302A') : L === 19 ? '#E9C46A' : '#E5302A';
+    const ne = wh.querySelector('.cw-neon'); ne.style.opacity = L >= 22 ? 1 : 0; ne.style.stroke = CAR_NEON[L] || 'transparent'; ne.style.color = CAR_NEON[L] || 'transparent';
+  });
+}
 function updateCarStage(sum, pos, enabled) {
   setupCarStage();
   const st = CAR.el; if (!st) return;
-  const L = sum ? Math.max(0, Math.min(24, Math.floor((sum - 1000) / 1000))) : 0;
+  const L = sum ? Math.max(0, Math.min(24, Math.floor((sum - 1000) / 1000))) : 0, lv = CAR_LV[L], T = lv[1];
   st.classList.toggle('off', !enabled);
   st.style.setProperty('--p', enabled ? pos.toFixed(4) : '0');
-  st.querySelector('.car-name').textContent = enabled ? CAR_NAMES[L] : 'Колата расте със сумата';
-  st.querySelector('.car-lvl').textContent = enabled ? 'ниво ' + (L + 1) + ' от 25' : (state.casco.company ? 'изберете сума' : 'изберете компания');
-  if (L === CAR.L) { CAR.p = pos; return; }
+  st.style.setProperty('--tc', CAR_TIERS[T].c);
+  st.dataset.tier = T;
+  st.toggleAttribute('data-shake', L <= 2);
+  st.querySelectorAll('.cs-bg').forEach(b => b.classList.toggle('on', +b.dataset.t === T));
+  st.querySelector('.cs-tname').textContent = enabled ? CAR_TIERS[T].name : 'Каско Избор';
+  st.querySelector('.cs-name').textContent = enabled ? lv[0] : 'Колата расте със сумата';
+  st.querySelector('.cs-lvl').textContent = enabled ? 'ниво ' + (L + 1) + ' от 25' : (state.casco.company ? 'изберете сума' : 'изберете компания');
+  const t0 = CAR_LV.findIndex(v => v[1] === T), tn = CAR_LV.filter(v => v[1] === T).length;
+  st.querySelectorAll('.cs-segs i').forEach((e, i) => e.style.setProperty('--f', !enabled ? 0 : i < T ? 1 : i > T ? 0 : ((L - t0 + 1) / tn).toFixed(3)));
+  st.querySelector('.cs-next').innerHTML = !enabled ? 'на всеки 1 000 € – ново ниво' : L < 24 ? 'Следва при ' + intEur((L + 2) * 1000) + ': <b>' + CAR_LV[L + 1][6] + '</b>' : '<b>Максимално ниво</b> – по-хубава няма';
   const svg = st.querySelector('.car-svg');
-  // кратко „потегляне“: колелата се завъртат по посока на движението
-  if (CAR.L >= 0) {
-    svg.classList.remove('drive', 'back'); void svg.getBBox();
-    svg.classList.add(L > CAR.L ? 'drive' : 'back');
-    clearTimeout(CAR.t); CAR.t = setTimeout(() => svg.classList.remove('drive', 'back'), 900);
+  const moved = enabled && CAR.p >= 0 && Math.abs(pos - CAR.p) > 1e-6;
+  if (moved) {         // потегляне: колелата се въртят, пътят се плъзга, каросерията клякa
+    st.classList.remove('fwd', 'rev'); void st.offsetWidth;
+    st.classList.add(pos > CAR.p ? 'fwd' : 'rev');
+    clearTimeout(CAR.t); CAR.t = setTimeout(() => st.classList.remove('fwd', 'rev'), 1050);
   }
-  CAR.L = L; CAR.p = pos;
-  const g = carGeo(L), paint = carRamp(CAR_PAINT, L), glass = carRamp(CAR_GLASS, L);
-  const q = s => svg.querySelector(s);
-  q('.car-body').style.d = 'path("' + carBodyD(g) + '")';
-  q('.car-win').style.d = 'path("' + carWinD(g) + '")';
-  q('.car-shine').style.d = 'path("' + carShineD(g) + '")';
-  q('.car-stripe').style.d = 'path("' + carStripeD(g) + '")';
-  const px = (g.xr1 + g.xr2) / 2 + 2;
-  q('.car-pillar').style.d = 'path("M' + px + ' ' + (g.yrf + 2) + ' L' + (px + 2) + ' ' + g.ybl + '")';
-  q('.car-p1').style.stopColor = carShade(paint, .28);
-  q('.car-p2').style.stopColor = paint;
-  q('.car-p3').style.stopColor = carShade(paint, -.32);
-  q('.car-g1').style.stopColor = carShade(glass, .25);
-  q('.car-g2').style.stopColor = glass;
-  q('.car-pillar').style.stroke = carShade(paint, -.15);
-  q('.car-spoiler').style.stroke = carShade(paint, -.45);
-  // детайли по нива
-  const op = (sel, v) => { q(sel).style.opacity = v; };
-  op('.car-rust', Math.max(0, 1 - L / 4));
-  op('.car-primer', L <= 2 ? 1 - L * .3 : 0);
-  op('.car-smoke', L <= 3 ? 1 - L * .25 : 0);
-  op('.car-crack', L === 0 ? 1 : 0);
-  op('.car-antenna', L <= 6 ? 1 : 0);
-  op('.car-bumper', L <= 1 ? 1 : 0);
-  op('.car-shine', Math.min(.6, L / 24 * .75));
-  op('.car-stripe', L >= 14 ? Math.min(1, (L - 13) / 3) : 0);
-  q('.car-stripe').style.stroke = L >= 21 ? '#FFD23F' : 'rgba(255,255,255,.85)';
-  op('.car-spoiler', L >= 19 ? 1 : 0);
-  op('.car-speed', L >= 18 ? Math.min(1, (L - 17) / 4) : 0);
-  op('.car-sparkles', L >= 21 ? 1 : 0);
-  op('.car-under', L >= 23 ? (L === 24 ? .85 : .5) : 0);
-  op('.car-head-old', L < 10 ? 1 : 0);
-  op('.car-head-led', L >= 10 ? 1 : 0);
-  op('.car-glow', L >= 18 ? .9 : 0);
-  q('.car-head-old').style.transform = 'translate(' + (g.xn - 5) + 'px,' + (g.yh + 9) + 'px)';
-  q('.car-head-led').style.transform = 'translate(' + g.xn + 'px,' + (g.yh + 7) + 'px)';
-  q('.car-glow').style.transform = 'translate(' + (g.xn + 4) + 'px,' + (g.yh + 9) + 'px)';
-  q('.car-tail').style.transform = 'translate(' + g.xr + 'px,' + (g.ytr + 4) + 'px) scaleY(' + (L >= 10 ? .45 : 1) + ')';
-  q('.car-tail').style.fill = L >= 10 ? '#FF2E43' : '#E8862E';
-  q('.car-spoiler').style.transform = 'translate(' + (g.xr + 3) + 'px,' + (g.ytr + 1) + 'px)';
-  q('.car-bumper').style.transform = 'translate(' + (g.xr - 4) + 'px,' + (g.yb - 8) + 'px) rotate(14deg)';
-  // колела: по-големи, джантите се сменят от железни към тасове и алуминиеви
-  ['rear', 'front'].forEach(w => {
-    const wx = w === 'rear' ? g.wrx : g.wfx;
-    const wh = q('.car-wheel.' + w);
-    wh.style.transform = 'translate(' + wx + 'px,' + g.cy + 'px) scale(' + (g.wr / 16).toFixed(3) + ')';
-    const rimScale = (.62 + L / 24 * .5).toFixed(3);
-    wh.querySelector('.car-rim').style.transform = 'scale(' + rimScale + ')';
-    wh.querySelector('.car-rim-disc').style.fill = L < 6 ? '#3B404C' : (L < 15 ? '#C7CED8' : (L >= 20 ? '#232833' : '#5F6878'));
-    wh.querySelector('.car-cap').style.opacity = L >= 6 && L < 15 ? 1 : 0;
-    wh.querySelector('.car-spokes').style.opacity = L >= 15 ? 1 : 0;
-    wh.querySelector('.car-spokes').style.fill = L >= 22 ? '#F4F6F9' : '#D9DFE7';
-    wh.querySelector('.car-holes').style.opacity = L >= 6 && L < 15 ? 1 : 0;
-    wh.querySelector('.car-caliper').style.opacity = L >= 17 ? 1 : 0;
-  });
+  if (L !== CAR.L) {
+    if (CAR.L < 0) { st.classList.add('cs-init'); requestAnimationFrame(() => requestAnimationFrame(() => st.classList.remove('cs-init'))); }
+    carApply(svg, L);
+    if (enabled && CAR.L >= 0 && L > CAR.L) {   // по-високо ниво: надпис какво е новото и отблясък
+      const pop = st.querySelector('.cs-pop'), up = T > CAR.T;
+      pop.querySelector('span').textContent = up ? 'Нов клас: ' + CAR_TIERS[T].name : lv[6];
+      pop.querySelector('i').textContent = up ? '★' : '✦';
+      pop.classList.remove('show'); st.classList.remove('shine'); void st.offsetWidth;
+      pop.classList.add('show'); st.classList.add('shine');
+      if (up) { const b = st.querySelector('.cs-burst'); b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
+      clearTimeout(CAR.tp); CAR.tp = setTimeout(() => st.classList.remove('shine'), 1500);
+    }
+  }
+  CAR.L = L; CAR.T = T; CAR.p = enabled ? pos : -1;
 }
 
 /* ================================================================
