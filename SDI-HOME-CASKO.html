@@ -1901,15 +1901,6 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
 .footer { max-width: 1380px; margin: 0 auto; padding: 8px 24px 40px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 24px; color: var(--ink-3); font-size: 13px; }
 .footer-right { margin-left: auto; }
 .footer .help b { color: var(--ink-2); font-variant-numeric: tabular-nums; }
-.credit { display: inline-flex; align-items: baseline; gap: 6px; }
-.credit-name {
-  font-weight: 700; letter-spacing: .01em;
-  background: linear-gradient(90deg, #FF9B3D, #FF6F61, #7FA8FF, #4FD1C5, #FF9B3D);
-  background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
-  animation: sheen 9s linear infinite;
-}
-@keyframes sheen { to { background-position: 300% 0; } }
-.credit-name.anim-off, html.w-open .footer .credit-name { animation-play-state: paused; }
 
 /* ================================================================
    НАЧАЛЕН ЕКРАН
@@ -2064,38 +2055,106 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
 .ver-pop p { margin: 0; font-size: 13.5px; line-height: 1.4; }
 .ver-pop small { color: var(--ink-3); font-size: 11.5px; }
 
-/* Подпис на автора */
-.sig {
-  position: relative; display: inline-flex; align-items: center; gap: 12px; padding: 7px 22px 7px 7px; border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .11), rgba(255, 255, 255, .03));
-  border: 1px solid rgba(255, 255, 255, .14);
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 14px 34px -20px rgba(0, 0, 0, .8);
-  transition: transform 1.2s cubic-bezier(.37, 0, .63, 1), box-shadow 1.2s cubic-bezier(.37, 0, .63, 1);
-}
-.sig:hover { transform: translateY(-3px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 20px 40px -18px rgba(0, 0, 0, .85); }
-.sig-mono { position: relative; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; flex: none; }
-.sig-mono::before {
-  content: ""; position: absolute; inset: 0; border-radius: 50%;
-  background: conic-gradient(from 0deg, #FF9B3D, #FF6F61, #B07CFF, #7FA8FF, #4FD1C5, #FF9B3D);
-  animation: sigRing 7s linear infinite;
-}
-.sig-mono::after { content: ""; position: absolute; inset: 2px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #22396A, #0B1630 70%); }
-.sig-mono span { position: relative; z-index: 1; font-family: var(--display); font-weight: 700; font-size: 13.5px; letter-spacing: .02em; color: #fff; }
-@keyframes sigRing { to { transform: rotate(360deg); } }
-.sig-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; text-align: left; }
-.sig-text small { font-size: 11.5px; color: rgba(255, 255, 255, .58); letter-spacing: .02em; }
-.sig-text .credit-name { font-size: 16.5px; }
-.sig-line { display: block; width: 100%; height: 7px; margin-top: 1px; overflow: visible; }
-.sig-line path { fill: none; stroke: var(--accent-on-navy); stroke-width: 1.5; stroke-linecap: round; opacity: .75; stroke-dasharray: 240; stroke-dashoffset: 240; animation: sigDraw 1.9s cubic-bezier(.65, 0, .35, 1) .6s forwards; }
-@keyframes sigDraw { to { stroke-dashoffset: 0; } }
-.sig-sm { padding: 4px 16px 4px 4px; gap: 10px; background: var(--surface); border-color: var(--line); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
-.sig-sm:hover { box-shadow: 0 10px 24px -16px rgba(19, 35, 63, .45); }
-.sig-sm .sig-mono { width: 32px; height: 32px; }
-.sig-sm .sig-mono::after { background: var(--navy); }
-.sig-sm .sig-mono span { font-size: 10.5px; }
-.sig-sm .sig-text small { color: var(--ink-3); font-size: 11px; }
-.sig-sm .sig-text .credit-name { font-size: 14px; }
+/* Подпис на автора (както в „Дневни отчети“): плочка BV с въртяща се цветна рамка, „© 2026 | Powered by:“ и името с преливащ цвят.
+   На началния екран плува, по него минава отблясък и от време на време сам се разгъва; в приложението стои неподвижно,
+   а при посочване се повдига, рамката се върти по-бързо, минава отблясък и се показва „Идея · Дизайн · Код“. */
+@keyframes bv-rot { to { transform: rotate(360deg); } }
+@keyframes bv-shine { to { background-position: 220px 0; } }
+@keyframes bv-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+@keyframes bv-glint { 0%, 72% { transform: translateX(0) skewX(-15deg); } 100% { transform: translateX(620%) skewX(-15deg); } }
+@keyframes bv-glint-h { 0% { transform: translateX(0) skewX(-15deg); } 45%, 100% { transform: translateX(620%) skewX(-15deg); } }
+.bv-pill {
+  --bv-gap: .95rem;
+  --bv-tint: rgba(255, 255, 255, .64); --bv-edge: rgba(255, 255, 255, .88); --bv-hi: rgba(255, 255, 255, .95); --bv-lo: rgba(255, 255, 255, .18);
+  --bv-sheen: linear-gradient(135deg, rgba(255, 255, 255, .58) 0%, rgba(255, 255, 255, .12) 36%, rgba(255, 255, 255, .02) 64%, rgba(255, 255, 255, .32) 100%);
+  --bv-shadow: 0 24px 48px -22px rgba(10, 44, 78, .5), 0 0 0 1px rgba(20, 72, 110, .12);
+  position: relative; display: inline-flex; align-items: center; gap: var(--bv-gap); max-width: 100%; padding: .5rem 1.7rem .5rem .5rem; border-radius: 999px; cursor: default;
+  background-color: var(--bv-tint); background-image: var(--bv-sheen); border: 1px solid var(--bv-edge);
+  box-shadow: inset 0 1.5px 0 var(--bv-hi), inset 0 -1px 0 var(--bv-lo), var(--bv-shadow);
+  font-family: var(--font); text-decoration: none;
+  transition: transform .45s cubic-bezier(.3, 1.5, .5, 1), box-shadow .35s ease, border-color .35s ease;
+}
+[data-theme="dark"] .bv-pill {
+  --bv-tint: rgba(150, 195, 240, .14); --bv-edge: rgba(255, 255, 255, .24); --bv-hi: rgba(255, 255, 255, .34); --bv-lo: rgba(255, 255, 255, .05);
+  --bv-sheen: linear-gradient(135deg, rgba(255, 255, 255, .16) 0%, rgba(255, 255, 255, .04) 34%, rgba(255, 255, 255, 0) 62%, rgba(255, 255, 255, .07) 100%);
+  --bv-shadow: 0 26px 56px -24px rgba(0, 0, 0, .9), 0 0 0 1px rgba(255, 255, 255, .04);
+}
+.bv-mark {
+  position: relative; flex: none; width: 2.9rem; height: 2.9rem; padding: 2px; border-radius: 1.05rem; overflow: hidden; isolation: isolate;
+  box-shadow: 0 8px 20px -8px rgba(13, 148, 136, .7); transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+}
+/* Въртящият се градиент е отделен слой, който се върти с transform – не се прерисува на всеки кадър */
+.bv-mark::before {
+  content: ""; position: absolute; inset: -50%; z-index: -1; will-change: transform;
+  background: conic-gradient(from 0deg, #34D399, #22D3EE, #FBBF24, #34D399);
+  animation: bv-rot 7s linear infinite;
+}
+.bv-mark-in {
+  position: relative; display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; border-radius: calc(1.05rem - 2px);
+  background: linear-gradient(145deg, #0E3A38 0%, #09202C 100%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28);
+}
+.bv-mark-in b {
+  font-weight: 900; font-size: .98rem; letter-spacing: -.03em; line-height: 1;
+  background: linear-gradient(135deg, #B7F7DA, #67E8F9); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.bv-lines { display: flex; flex-direction: column; align-items: flex-start; gap: .22rem; min-width: 0; line-height: 1.1; text-align: left; }
+.bv-copy { font-size: .62rem; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: rgba(14, 52, 86, .62); white-space: nowrap; }
+.bv-copy i { font-style: normal; opacity: .45; margin: 0 .3em; }
+[data-theme="dark"] .bv-copy { color: rgba(190, 216, 240, .6); }
+.bv-name {
+  font-size: 1.14rem; font-weight: 900; letter-spacing: .02em; white-space: nowrap;
+  background-image: linear-gradient(100deg, #0F766E 0%, #0369A1 50%, #0F766E 100%); background-size: 220px 100%; background-repeat: repeat-x;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: bv-shine 5s linear infinite;
+}
+[data-theme="dark"] .bv-name { background-image: linear-gradient(100deg, #6EE7B7 0%, #67E8F9 50%, #6EE7B7 100%); }
+.bv-pill:hover { transform: translateY(-3px); border-color: rgba(45, 212, 191, .6); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 0 0 4px rgba(20, 184, 166, .14), 0 18px 36px -16px rgba(13, 148, 136, .75); }
+.bv-pill:hover .bv-mark { transform: scale(1.06) rotate(-5deg); }
+.bv-pill:hover .bv-mark::before { animation: bv-rot 1.8s linear infinite !important; animation-play-state: running !important; }
+/* Разгъване: „Идея · Дизайн · Код / SDI Калкулатор“ */
+.bv-more { display: grid; grid-template-columns: 0fr; margin-left: calc(var(--bv-gap) * -1); opacity: 0;
+  transition: grid-template-columns .55s cubic-bezier(.2, .8, .2, 1), margin-left .55s cubic-bezier(.2, .8, .2, 1), opacity .25s ease; }
+.bv-more-in { min-width: 0; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: .22rem; line-height: 1.1;
+  padding-left: var(--bv-gap); border-left: 1px solid rgba(14, 52, 86, .18); white-space: nowrap; text-align: left; }
+[data-theme="dark"] .bv-more-in, .bv-welcome .bv-more-in { border-left-color: rgba(255, 255, 255, .18); }
+.bv-more-name { font-size: 1.05rem; font-weight: 900; letter-spacing: .02em;
+  background: linear-gradient(100deg, #B45309, #D97706); -webkit-background-clip: text; background-clip: text; color: transparent; }
+[data-theme="dark"] .bv-more-name, .bv-welcome .bv-more-name { background-image: linear-gradient(100deg, #FDE68A, #FBBF24); }
+.bv-pill:hover .bv-more { grid-template-columns: 1fr; margin-left: 0; opacity: 1; transition-delay: .4s, .4s, .55s; }
+.bv-pill.bv-peek .bv-more { grid-template-columns: 1fr; margin-left: 0; opacity: 1; transition-delay: 0s, 0s, .15s; }
+/* Начален екран (винаги тъмен фон): плува, рамката се върти, името прелива, минава отблясък */
+.bv-welcome .bv-pill {
+  --bv-gap: .8rem; padding: .42rem 1.35rem .42rem .42rem; overflow: hidden; animation: bv-float 4.6s ease-in-out infinite;
+  background-color: rgba(255, 255, 255, .06); background-image: linear-gradient(135deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .02) 60%);
+  border-color: rgba(255, 255, 255, .16); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 14px 34px -14px rgba(0, 0, 0, .8);
+}
+.bv-welcome .bv-pill:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 0 4px rgba(45, 212, 191, .16), 0 18px 40px -14px rgba(20, 184, 166, .6); }
+.bv-welcome .bv-pill:hover .bv-name { animation: bv-shine 1.4s linear infinite; }
+.bv-welcome .bv-mark { width: 2.4rem; height: 2.4rem; border-radius: .9rem; }
+.bv-welcome .bv-mark-in { border-radius: calc(.9rem - 2px); }
+.bv-welcome .bv-mark-in b { font-size: .84rem; }
+.bv-welcome .bv-copy { font-size: .56rem; color: rgba(186, 230, 215, .66); }
+.bv-welcome .bv-name { font-size: .98rem; background-image: linear-gradient(100deg, #6EE7B7 0%, #67E8F9 50%, #6EE7B7 100%); }
+.bv-welcome .bv-more-name { font-size: .9rem; }
+.bv-welcome .bv-pill::after {
+  content: ""; position: absolute; top: -10%; bottom: -10%; left: -35%; width: 28%; pointer-events: none;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .2), rgba(255, 255, 255, 0));
+  transform: translateX(0) skewX(-15deg); animation: bv-glint 6.5s ease-in-out 2.2s infinite;
+}
+/* В приложението: неподвижен до посочване; отблясъкът само се плъзга (без прерисуване на всеки кадър) */
+.bv-app .bv-pill { will-change: transform; }
+.bv-app .bv-mark { will-change: transform; }
+.bv-app .bv-mark::before, .bv-app .bv-name { animation: none; }
+.bv-glint { position: absolute; inset: 0; z-index: 3; border-radius: inherit; overflow: hidden; pointer-events: none; }
+.bv-glint > i {
+  position: absolute; top: -20%; bottom: -20%; left: -35%; width: 28%; display: block; will-change: transform;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .55) 50%, rgba(255, 255, 255, 0) 100%);
+  transform: translateX(0) skewX(-15deg); animation: bv-glint 6.5s ease-in-out 2.5s infinite;
+}
+[data-theme="dark"] .bv-glint > i { background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, 0) 100%); }
+.bv-app .bv-pill:hover .bv-glint > i { animation: bv-glint-h 2.4s ease-in-out .05s infinite; }
+html.w-open .bv-app .bv-glint > i { animation-play-state: paused; }
+@media (max-width: 560px) { .bv-more { display: none; } }
+@media (max-width: 420px) { .bv-pill { --bv-gap: .7rem; padding-right: 1.2rem; } .bv-name { font-size: 1rem; } .bv-welcome .bv-name { font-size: .88rem; } .bv-copy { letter-spacing: .14em; } }
 .footer-right { display: inline-flex; align-items: center; gap: 14px; }
 
 /* ---------- Автоасистанс ---------- */
@@ -2451,14 +2510,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
   </div>
   <button type="button" class="w-ver ver-btn" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.47 от 22.10.2026<span class="ver-hint">Какво ново?</span></button>
   <div class="w-foot">
-    <div class="sig" title="Създадено от Borislav Vartigorov">
-      <span class="sig-mono" aria-hidden="true"><span>BV</span></span>
-      <span class="sig-text">
-        <small>Създадено от</small>
-        <span class="credit-name">Borislav Vartigorov</span>
-        <svg class="sig-line" viewBox="0 0 160 8" preserveAspectRatio="none" aria-hidden="true"><path d="M1 5.5C14 2 26 1.6 40 4.2S66 7.4 80 4.6S106 1 120 3.6S146 6.8 159 3"/></svg>
-      </span>
-    </div>
+    <div class="bv-welcome"><span class="bv-pill"><span class="bv-mark" aria-hidden="true"><span class="bv-mark-in"><b>BV</b></span></span><span class="bv-lines"><span class="bv-copy">© 2026<i>|</i>Powered by:</span><span class="bv-name">Borislav Vartigorov</span></span><span class="bv-more" aria-hidden="true"><span class="bv-more-in"><span class="bv-copy">Идея<i>·</i>Дизайн<i>·</i>Код</span><span class="bv-more-name">SDI Калкулатор</span></span></span></span></div>
   </div>
 </div>
 
@@ -2857,7 +2909,7 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
 
 <footer class="footer">
   <div class="footer-right"><button type="button" class="ver-btn ver-app" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.47 от 22.10.2026<span class="ver-hint">Какво ново?</span></button><span>© 2026 SDI Калкулатор</span>
-    <span class="sig sig-sm" title="Създадено от Borislav Vartigorov"><span class="sig-mono" aria-hidden="true"><span>BV</span></span><span class="sig-text"><small>Създадено от</small><span class="credit-name">Borislav Vartigorov</span></span></span>
+    <span class="bv-app"><span class="bv-pill"><span class="bv-glint" aria-hidden="true"><i></i></span><span class="bv-mark" aria-hidden="true"><span class="bv-mark-in"><b>BV</b></span></span><span class="bv-lines"><span class="bv-copy">© 2026<i>|</i>Powered by:</span><span class="bv-name">Borislav Vartigorov</span></span><span class="bv-more" aria-hidden="true"><span class="bv-more-in"><span class="bv-copy">Идея<i>·</i>Дизайн<i>·</i>Код</span><span class="bv-more-name">SDI Калкулатор</span></span></span></span></span>
   </div>
 </footer>
 
@@ -9840,10 +9892,15 @@ if (typeof WELCOME_ART !== 'undefined') document.querySelectorAll('img[data-wart
 function markFilled() { document.querySelectorAll('.view:not([hidden]) .select:not(.k-adj-sel), .view:not([hidden]) .input').forEach(el => el.classList.toggle('is-filled', el.value !== '')); }
 ['input', 'change', 'click', 'keyup'].forEach(t => document.addEventListener(t, () => requestAnimationFrame(markFilled)));
 markFilled();
-if ('IntersectionObserver' in window) {   // надписът с преливащ цвят се рисува наново всеки кадър – само докато се вижда
-  const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('anim-off', !e.isIntersecting)));
-  document.querySelectorAll('.credit-name').forEach(el => io.observe(el));
-}
+// Начален екран: подписът сам се разгъва за кратко на всеки ~9 сек.
+(() => {
+  const pill = document.querySelector('.bv-welcome .bv-pill'); if (!pill) return;
+  const peek = () => {
+    if (!document.documentElement.classList.contains('w-open') || pill.matches(':hover')) return;
+    pill.classList.add('bv-peek'); setTimeout(() => pill.classList.remove('bv-peek'), 2600);
+  };
+  setTimeout(() => { peek(); setInterval(peek, 9000); }, 3800);
+})();
 if ($('favicon')) $('favicon').href = SDI_FAVICON;
 setupWelcomeMotion();
 applyTheme();
