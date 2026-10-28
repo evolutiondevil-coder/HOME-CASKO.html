@@ -459,7 +459,7 @@ button.tile.lift::after { content: ""; position: absolute; left: 0; right: 0; bo
 button.tile.lift:hover:not(:disabled) { transform: translate3d(0, -6px, 0); border-color: var(--line); box-shadow: 0 1px 2px rgba(19, 35, 63, .05); transition-duration: .95s, .6s, .6s; }
 button.tile.lift:hover:not(:disabled)::before { opacity: 1; transition-duration: .95s; }
 button.tile.lift[aria-checked="true"]:hover { border-color: var(--co); box-shadow: 0 0 0 1px var(--co), 0 16px 32px -22px color-mix(in srgb, var(--co) 85%, transparent); }
-@media (prefers-reduced-motion: reduce) { button.tile.lift, button.tile.lift::before { transition: none; } }
+html[data-motion="off"] button.tile.lift, html[data-motion="off"] button.tile.lift::before { transition: none; }
 /* Алианц: картинка на територията над заглавието */
 .aa-terr-art { display: block; width: 100%; height: auto; aspect-ratio: 640 / 447; margin: 0 0 14px; border-radius: 16px; filter: drop-shadow(0 10px 14px rgba(19, 35, 63, .18)); }
 .aa-terr-title { display: flex !important; align-items: center; gap: 8px; }
@@ -710,7 +710,7 @@ button.tile.lift:has(.aa-terr-art) .tick { z-index: 2; }
   #c-tariff .tt-open-tx small { font-size: 12px; }
   #c-tariff .tt-open-go { width: 42px; height: 42px; padding: 4px; }
 }
-@media (prefers-reduced-motion: reduce) { #c-tariff .tt-open, #c-tariff .tt-open-ic img, #c-tariff .tt-open-go { transition: none; } }
+html[data-motion="off"] #c-tariff .tt-open, html[data-motion="off"] #c-tariff .tt-open-ic img, html[data-motion="off"] #c-tariff .tt-open-go { transition: none; }
 /* Цялата тарифа – таблица: отделни карти „Сума“, „Експертна оценка“, „Доверен сервиз“; клубна карта в оранжево; активна колона и маркиран ред с рамка */
 .tt-scroll { padding: 0 16px 16px; }
 .tt-table { --e: #2F7BF0; --t: #14A38B; --k: #F0A030; --m: #2E8FD8; --hh: 58px; width: 100%; min-width: 640px; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
@@ -800,7 +800,7 @@ button.tile.lift:has(.aa-terr-art) .tick { z-index: 2; }
 .tt-table tbody tr.is-mark .tt-sv { font-size: 17px; }
 .tt-table tbody tr.is-mark td small { color: var(--ink-2); }
 @media (max-width: 760px) { .tt-table tbody tr.is-mark td b { font-size: 13.5px; } .tt-table tbody tr.is-mark .tt-sv { font-size: 13.5px; } }
-@media (prefers-reduced-motion: reduce) { .tt-hl { transition: none; } }
+html[data-motion="off"] .tt-hl { transition: none; }
 .tt-modal { position: fixed; inset: 0; z-index: 500; display: grid; place-items: center; padding: 20px; background: rgba(10, 19, 34, .45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .22s var(--ease); }
 .tt-modal.open { opacity: 1; }
 .tt-modal[hidden] { display: none; }
@@ -833,7 +833,7 @@ button.tile.lift:has(.aa-terr-art) .tick { z-index: 2; }
   .tt-hint { display: none; }
   .tt-ttl h3 { font-size: 16px; }
 }
-@media (prefers-reduced-motion: reduce) { .tt-modal, .tt-panel { transition: none; } }
+html[data-motion="off"] .tt-modal, html[data-motion="off"] .tt-panel { transition: none; }
 /* Каско: бърза промяна на сумата */
 .kq-row { display: flex; align-items: center; gap: 14px; }
 .kq-btn { flex: none; width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--accent); background: var(--surface); color: var(--accent-strong); display: grid; place-items: center; cursor: pointer;
@@ -1404,7 +1404,7 @@ button.tile.lift:has(.aa-terr-art) .tick { z-index: 2; }
 .ds-search input:focus { border-color: var(--accent); background: var(--surface); }
 .ds-pop.ds-sm .ds-opt { min-height: 34px; font-size: 13.5px; }
 @media (pointer: coarse) { .ds-opt { min-height: 46px; } }
-@media (prefers-reduced-motion: reduce) { .ds-pop, .ds-chev { transition: none; } }
+html[data-motion="off"] .ds-pop, html[data-motion="off"] .ds-chev { transition: none; }
 /* Поле за дата: лявата половина – календар, дясната – ръчно въвеждане */
 .df { position: relative; display: flex; align-items: stretch; width: 100%; min-width: 0; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink);
   transition: border-color .4s var(--ease), background-color .4s var(--ease), box-shadow .4s var(--ease); }
@@ -1450,7 +1450,7 @@ button.tile.lift:has(.aa-terr-art) .tick { z-index: 2; }
 .df-qk button { flex: 1; padding: 7px 6px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--ink); font: inherit; font-size: 12.5px; font-weight: 600; white-space: nowrap; cursor: pointer; }
 .df-qk button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-strong); }
 .df-qk button:disabled { opacity: .4; cursor: default; }
-@media (prefers-reduced-motion: reduce) { .df-pop { transition: none; } }
+html[data-motion="off"] .df-pop { transition: none; }
 .zu-result { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 12px; margin-top: 10px; }
 .zu-result .badge { font-weight: 700; padding: 4px 12px; border-radius: 999px; white-space: nowrap; }
 .zu-result.none { background: var(--ok-soft); color: var(--ok); }
