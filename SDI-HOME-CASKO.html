@@ -1901,7 +1901,6 @@ html.zoom-na #zoomBtn, html.zoom-na #zoomPop { display: none !important; }
 .footer { max-width: 1380px; margin: 0 auto; padding: 8px 24px 40px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px 24px; color: var(--ink-3); font-size: 13px; }
 .footer .bv-app { grid-column: 2; justify-self: center; }   /* подписът е точно в средата долу */
 .footer-ver { justify-self: start; }
-.footer-copy { justify-self: end; text-align: right; }
 .footer .help b { color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
 /* ================================================================
@@ -2453,8 +2452,8 @@ html.w-open .bv-app .bv-glint > i { animation-play-state: paused; }
   .tab { font-size: 10.5px; padding: 4px 0 8px; letter-spacing: -.01em; }
   .ci.tab-ci { --s: 28px; }
   .footer { grid-template-columns: minmax(0, 1fr); justify-items: center; row-gap: 10px; }
-  .footer-ver, .footer-copy { justify-self: center; text-align: center; }
-  .footer .bv-app { grid-column: 1; grid-row: 3; }
+  .footer-ver { justify-self: center; text-align: center; }
+  .footer .bv-app { grid-column: 1; grid-row: 2; }
 }
 /* Анимациите се изключват само от Настройки (не от системата), за да са плавни и при изключени ефекти в Windows */
 @media all {
@@ -2914,7 +2913,6 @@ html.w-open .bv-app .bv-glint > i { animation-play-state: paused; }
 <footer class="footer">
   <div class="footer-ver"><button type="button" class="ver-btn ver-app" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.47 от 22.10.2026<span class="ver-hint">Какво ново?</span></button></div>
   <span class="bv-app"><span class="bv-pill"><span class="bv-glint" aria-hidden="true"><i></i></span><span class="bv-mark" aria-hidden="true"><span class="bv-mark-in"><b>BV</b></span></span><span class="bv-lines"><span class="bv-copy">© 2026<i>|</i>Powered by:</span><span class="bv-name">Borislav Vartigorov</span></span><span class="bv-more" aria-hidden="true"><span class="bv-more-in"><span class="bv-copy">Идея<i>·</i>Дизайн<i>·</i>Код</span><span class="bv-more-name">SDI Калкулатор</span></span></span></span></span>
-  <div class="footer-copy">© 2026 SDI Калкулатор</div>
 </footer>
 
 <div class="mbar" id="mbar" aria-hidden="true">
