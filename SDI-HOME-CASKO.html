@@ -6229,13 +6229,13 @@ function tariffTableHTML(s) {
 }
 
 /* Начин на обезщетяване: системните емотикони (на Windows изглеждат като в предишната версия) */
-const SVC_EMOJI = { expert: '\u{1F4B0}', trusted: '\u{1F91D}', official: '\u{1F3C5}' };
+
 function renderService() {
   const s = state.casco, k = s.company, ok = !!(k && s.sum);
   const step = $('c-step3');
   step.classList.toggle('locked', !ok);
   step.classList.toggle('done', ok && !!s.service && !(s.service === 'official' && officialAvailable(k, s.sum) && !s.officialAge));
-  if (!ok) { morph($('c-service'), '<div class="opts">' + ['expert', 'trusted'].map(id => '<div class="tile"><span class="opt-art emo" aria-hidden="true">' + SVC_EMOJI[id] + '</span>' + '<span class="opt-title" style="display:block">' + SERVICE[id].name + '</span><span class="opt-desc" style="display:block">' + SERVICE[id].desc + '</span></div>').join('') + '</div>'); return; }
+  if (!ok) { morph($('c-service'), '<div class="opts">' + ['expert', 'trusted'].map(id => '<div class="tile"><span class="opt-art svc-art" aria-hidden="true"><img src="' + K_SVC_ART[id] + '" alt="" draggable="false"></span>' + '<span class="opt-title" style="display:block">' + SERVICE[id].name + '</span><span class="opt-desc" style="display:block">' + SERVICE[id].desc + '</span></div>').join('') + '</div>'); return; }
   const svc = cascoServiceFor(s);
   const ids = CASCO.co[k].official ? ['expert', 'trusted', 'official'] : ['expert', 'trusted'];
   const expertP = cascoTariffPremium(k, s.sum, 'expert', s.card);
@@ -6253,7 +6253,7 @@ function renderService() {
     }
     h += '<button class="tile" role="radio" aria-checked="' + (svc === id) + '" data-act="service" data-val="' + id + '" data-fk="svc-' + id + '"' + (avail ? '' : ' disabled style="opacity:.5;cursor:not-allowed"') + '>' +
       '<span class="tick">' + icon('check') + '</span>' +
-      '<span class="opt-art emo" aria-hidden="true">' + SVC_EMOJI[id] + '</span>' +
+      '<span class="opt-art svc-art" aria-hidden="true"><img src="' + K_SVC_ART[id] + '" alt="" draggable="false"></span>' +
       '<span class="opt-title" style="display:block">' + SERVICE[id].name + '</span>' +
       '<span class="opt-desc" style="display:block">' + SERVICE[id].desc + '</span>' +
       (avail ? '<span class="opt-price" style="display:block">' + eur(p) + '</span>' : '<span class="opt-price" style="display:block;color:var(--ink-3)">—</span>') +
