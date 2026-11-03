@@ -2515,7 +2515,7 @@ html.w-open .bv-app .bv-glint > i { animation-play-state: paused; }
       </button>
     </div>
   </div>
-  <button type="button" class="w-ver ver-btn" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.47 от 22.10.2026<span class="ver-hint">Какво ново?</span></button>
+  <button type="button" class="w-ver ver-btn" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.60 от 02.11.2026<span class="ver-hint">Какво ново?</span></button>
   <div class="w-foot">
     <div class="bv-welcome"><span class="bv-pill"><span class="bv-mark" aria-hidden="true"><span class="bv-mark-in"><b>BV</b></span></span><span class="bv-lines"><span class="bv-copy">© 2026<i>|</i>Powered by:</span><span class="bv-name">Borislav Vartigorov</span></span><span class="bv-more" aria-hidden="true"><span class="bv-more-in"><span class="bv-copy">Идея<i>·</i>Дизайн<i>·</i>Код</span><span class="bv-more-name">SDI Калкулатор</span></span></span></span></div>
   </div>
@@ -2915,7 +2915,7 @@ html.w-open .bv-app .bv-glint > i { animation-play-state: paused; }
 </main>
 
 <footer class="footer">
-  <div class="footer-ver"><button type="button" class="ver-btn ver-app" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.47 от 22.10.2026<span class="ver-hint">Какво ново?</span></button></div>
+  <div class="footer-ver"><button type="button" class="ver-btn ver-app" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.60 от 02.11.2026<span class="ver-hint">Какво ново?</span></button></div>
   <span class="bv-app"><span class="bv-pill"><span class="bv-glint" aria-hidden="true"><i></i></span><span class="bv-mark" aria-hidden="true"><span class="bv-mark-in"><b>BV</b></span></span><span class="bv-lines"><span class="bv-copy">© 2026<i>|</i>Powered by:</span><span class="bv-name">Borislav Vartigorov</span></span><span class="bv-more" aria-hidden="true"><span class="bv-more-in"><span class="bv-copy">Идея<i>·</i>Дизайн<i>·</i>Код</span><span class="bv-more-name">SDI Калкулатор</span></span></span></span></span>
 </footer>
 
@@ -5881,7 +5881,7 @@ function renderSettings() {
     '<div class="pop-row"><label class="pop-toggle">Начален екран при отваряне<input type="checkbox" class="switch" role="switch" data-act="set-welcome" ' + (settings.welcome ? 'checked' : '') + '></label></div>' +
     '<div class="pop-row"><label class="pop-toggle">Плавни анимации<input type="checkbox" class="switch" role="switch" data-act="set-motion" ' + (settings.motion !== 'off' ? 'checked' : '') + '></label>' +
       (sysReduce ? '<div class="pop-hint">В Windows анимациите са изключени, но в калкулатора остават включени, докато не ги изключите тук.</div>' : '') + '</div>' +
-    '<div class="pop-foot">Настройките се пазят в този браузър. Версия 4.47 от 22.10.2026.</div>');
+    '<div class="pop-foot">Настройките се пазят в този браузър. Версия 4.60 от 02.11.2026.</div>');
   positionThumbs($('settingsPop'));
 }
 function toggleSettings(open) {
@@ -6791,6 +6791,18 @@ function setLv(on) {
 
 /* ---------------- Какво ново: последните 10 промени (отваря се от версията долу вдясно) ---------------- */
 const CHANGELOG = [
+  ['4.60', '02.11.2026', 'Каско и Каско Избор, ремонт при щета / начин на обезщетяване: нови 3D логота – торба с пари (Експертна оценка), ръкостискане (Доверен сервиз) и медал (Официален сервиз).'],
+  ['4.59', '28.10.2026', 'Футър: подписът на автора е точно в средата долу, версията е вляво; махнат надписът „© 2026 SDI Калкулатор“.'],
+  ['4.58', '28.10.2026', 'Автоасистанс, „Територия“: нови чисти знамена и наново изрязани илюстрации – без светъл ореол в тъмен режим.'],
+  ['4.57', '28.10.2026', 'Анимациите при посочване (картите в Автоасистанс, „Цялата тарифа“, падащите менюта, календарът) работят и при изключени анимации в Windows; спират само от „Плавни анимации“ в Настройки.'],
+  ['4.56', '27.10.2026', 'Нов подпис на автора на началния екран и във футъра: плочка BV с въртяща се рамка и „© 2026 | Powered by:“; при посочване се разгъва.'],
+  ['4.55', '27.10.2026', 'Производителност: много по-малко натоварване на процесора и по-бърза реакция (плъзгач на сумата, смяна на раздели, въвеждане) – без промяна във вида.'],
+  ['4.54', '27.10.2026', 'Каско Избор: нова анимация с колата – 25 различни коли в 6 класа (Таратайка → Суперкола) със сменящ се фон, потегляне и надпис какво е новото на всяко ниво.'],
+  ['4.53', '26.10.2026', 'Каско: изчистени картинките на десен волан „Да“ и „Не“ – прозрачни дупки, без сияние и светли ръбове.'],
+  ['4.52', '26.10.2026', 'Суми в лева: бутонът „лв.“ е махнат; опцията в Настройки показва всички суми навсякъде само в лева, а при изключване – отново в евро.'],
+  ['4.51', '26.10.2026', 'Бутон „Изчисти“: нов коралов вид с 3D стрелка във всички секции.'],
+  ['4.50', '26.10.2026', 'Калкулатор, „Отстъпка“: всеки процент е цветно блокче със свой постоянен цвят.'],
+  ['4.49', '26.10.2026', 'Калкулатор: нови икони за „Лични отстъпки“, „Друго“ и „Превалутиране“; по-големи икони и заглавия на групите.'],
   ['4.47', '22.10.2026', 'Поправка: календарът на „Дата на първа регистрация“ (и календарите в поле с подсказка „следва“) вече не остава под следващите полета.'],
   ['4.46', '22.10.2026', 'Нова подсказка „следващо поле“: тюркоазена рамка с лек фон и етикет „следва“ – в Каско и в Медицински (Помощ при пътуване в чужбина и Туристически).'],
   ['4.45', '22.10.2026', 'Цялата тарифа: маркираният ред изпъква като отделна лента през цялата таблица – по-широка от колоните, със светъл фон, рамка и по-едри цени.'],
