@@ -2287,6 +2287,18 @@ html.w-open .bv-app .bv-glint > i { animation-play-state: paused; }
 .ps-inst div { padding: 2.4mm 3mm; border-radius: 3mm; background: #F4F6FA; border-left: 1.2mm solid var(--pc); }
 .ps-inst small { display: block; color: #5C6B83; font-size: 8.2pt; }
 .ps-inst b { font-size: 11.5pt; font-variant-numeric: tabular-nums; }
+.ps-pays { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 3mm; }
+.ps-po { padding: 2.6mm 3.2mm; border-radius: 3mm; background: #F4F6FA; border: 1px solid #E3E8EF; }
+.ps-po.sel { background: color-mix(in srgb, var(--pc) 8%, #fff); border-color: var(--pc); box-shadow: inset 0 0 0 .6px var(--pc); }
+.ps-po-h { display: flex; align-items: center; justify-content: space-between; gap: 1.5mm; font-size: 9pt; font-weight: 700; white-space: nowrap; }
+.ps-h-note { margin-left: auto; font-size: 7.8pt; font-weight: 400; color: #7A879B; }
+.ps-po-h i { font-style: normal; font-size: 6.8pt; font-weight: 700; padding: .3mm 2mm; border-radius: 99px; background: var(--pc); color: #fff; }
+.ps-po-t { display: block; margin-top: 1mm; font-size: 13pt; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ps-po small { display: block; color: #5C6B83; font-size: 7.8pt; line-height: 1.3; }
+.ps-po-parts { margin-top: 1.6mm; padding-top: 1.2mm; border-top: 1px dashed #D3DAE4; }
+.ps-po-parts div { display: flex; justify-content: space-between; gap: 2mm; font-size: 8pt; color: #3A4A63; font-variant-numeric: tabular-nums; }
+.ps-po-parts div span { white-space: nowrap; }
+.ps-po-parts div span:last-child { font-weight: 600; }
 .ps-req { margin-top: 5mm; padding: 3mm 4mm; border-radius: 3mm; background: #FFF6E5; border: 1px solid #F3D9A4; font-size: 8.8pt; break-inside: avoid; }
 .ps-req p { margin: 0; }
 .ps-req p + p { margin-top: 1mm; }
@@ -2515,7 +2527,7 @@ html.w-open .bv-app .bv-glint > i { animation-play-state: paused; }
       </button>
     </div>
   </div>
-  <button type="button" class="w-ver ver-btn" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.60 от 02.11.2026<span class="ver-hint">Какво ново?</span></button>
+  <button type="button" class="w-ver ver-btn" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.61 от 14.11.2026<span class="ver-hint">Какво ново?</span></button>
   <div class="w-foot">
     <div class="bv-welcome"><span class="bv-pill"><span class="bv-mark" aria-hidden="true"><span class="bv-mark-in"><b>BV</b></span></span><span class="bv-lines"><span class="bv-copy">© 2026<i>|</i>Powered by:</span><span class="bv-name">Borislav Vartigorov</span></span><span class="bv-more" aria-hidden="true"><span class="bv-more-in"><span class="bv-copy">Идея<i>·</i>Дизайн<i>·</i>Код</span><span class="bv-more-name">SDI Калкулатор</span></span></span></span></div>
   </div>
@@ -2915,7 +2927,7 @@ html.w-open .bv-app .bv-glint > i { animation-play-state: paused; }
 </main>
 
 <footer class="footer">
-  <div class="footer-ver"><button type="button" class="ver-btn ver-app" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.60 от 02.11.2026<span class="ver-hint">Какво ново?</span></button></div>
+  <div class="footer-ver"><button type="button" class="ver-btn ver-app" data-act="changelog" title="Щракнете, за да видите последните промени">Версия 4.61 от 14.11.2026<span class="ver-hint">Какво ново?</span></button></div>
   <span class="bv-app"><span class="bv-pill"><span class="bv-glint" aria-hidden="true"><i></i></span><span class="bv-mark" aria-hidden="true"><span class="bv-mark-in"><b>BV</b></span></span><span class="bv-lines"><span class="bv-copy">© 2026<i>|</i>Powered by:</span><span class="bv-name">Borislav Vartigorov</span></span><span class="bv-more" aria-hidden="true"><span class="bv-more-in"><span class="bv-copy">Идея<i>·</i>Дизайн<i>·</i>Код</span><span class="bv-more-name">SDI Калкулатор</span></span></span></span></span>
 </footer>
 
@@ -5881,7 +5893,7 @@ function renderSettings() {
     '<div class="pop-row"><label class="pop-toggle">Начален екран при отваряне<input type="checkbox" class="switch" role="switch" data-act="set-welcome" ' + (settings.welcome ? 'checked' : '') + '></label></div>' +
     '<div class="pop-row"><label class="pop-toggle">Плавни анимации<input type="checkbox" class="switch" role="switch" data-act="set-motion" ' + (settings.motion !== 'off' ? 'checked' : '') + '></label>' +
       (sysReduce ? '<div class="pop-hint">В Windows анимациите са изключени, но в калкулатора остават включени, докато не ги изключите тук.</div>' : '') + '</div>' +
-    '<div class="pop-foot">Настройките се пазят в този браузър. Версия 4.60 от 02.11.2026.</div>');
+    '<div class="pop-foot">Настройките се пазят в този браузър. Версия 4.61 от 14.11.2026.</div>');
   positionThumbs($('settingsPop'));
 }
 function toggleSettings(open) {
@@ -6791,6 +6803,7 @@ function setLv(on) {
 
 /* ---------------- Какво ново: последните 10 промени (отваря се от версията долу вдясно) ---------------- */
 const CHANGELOG = [
+  ['4.61', '14.11.2026', 'Каско и Каско Избор, печат на офертата: винаги се показват всички варианти на плащане – еднократно и на 2, 3 или 4 вноски, с разбивка по вноски и разлика спрямо еднократното; избраният е отбелязан. „Без оскъпяване“ се пише само когато сумата наистина е същата.'],
   ['4.60', '02.11.2026', 'Каско и Каско Избор, ремонт при щета / начин на обезщетяване: нови 3D логота – торба с пари (Експертна оценка), ръкостискане (Доверен сервиз) и медал (Официален сервиз).'],
   ['4.59', '28.10.2026', 'Футър: подписът на автора е точно в средата долу, версията е вляво; махнат надписът „© 2026 SDI Калкулатор“.'],
   ['4.58', '28.10.2026', 'Автоасистанс, „Територия“: нови чисти знамена и наново изрязани илюстрации – без светъл ореол в тъмен режим.'],
@@ -6913,6 +6926,20 @@ function printCoLogo(m) {
   return B ? '<img class="ps-co" src="' + B.full.src + '" alt="">' : '';
 }
 /* Оферта за печат: една страница A4 – заглавна лента, лого на компанията, крайна премия, параметри и изчисление в две колони */
+/* Каско и Каско Избор: при печат се показват всички варианти на плащане, не само избраният.
+   Всеки вариант се смята наново със същите данни – в Каско еднократното плащане често е с отстъпка. */
+function payVariants(m) {
+  let calc, ns;
+  if (m.kind === 'casco') { const co = CASCO.co[state.casco.company]; if (!co) return null; calc = n => calcCasco(Object.assign({}, state.casco, { inst: n })); ns = co.inst; }
+  else if (m.kind === 'kasko') { calc = n => calcKasko(Object.assign({}, state.kasko, { inst: n })); ns = [1, 2, 3, 4]; }
+  else return null;
+  const out = [];
+  for (const n of ns) {
+    const v = n === m.n ? m : calc(n);
+    if (!v.empty && v.n === n) out.push({ n, total: v.total, parts: v.parts });
+  }
+  return out.length ? out : null;
+}
 function printOffer() {
   const m = currentModel();
   if (m.empty) return;
@@ -6921,7 +6948,8 @@ function printOffer() {
   const nw = t => '<span class="ps-nw">' + esc(t) + '</span>';   // името не се пренася на два реда
   const title = 'Оферта' + (m.kind === 'casco' || m.kind === 'kasko' || (m.kind === 'home' && m.title) ? ', ' + nw(m.title) : (m.kind === 'assist' && m.short ? ', ' + nw(m.short) : ''));
   const totLbl = (m.n > 1 ? 'Крайна обща премия' : 'Крайна премия') + (m.taxIncluded ? ', с включен данък 2%' : (m.taxOn ? ', с данък 2%' : ', без данък'));
-  const pay = m.n > 1 ? m.n + ' вноски без оскъпяване' : (m.kind === 'assist' ? (m.payText || 'Еднократно плащане') : 'Еднократно плащане');
+  const pv = payVariants(m), one = pv && pv.find(o => o.n === 1);
+  const pay = m.n > 1 ? m.n + ' вноски' + (one && one.total !== m.total ? '' : ' без оскъпяване') : (m.kind === 'assist' ? (m.payText || 'Еднократно плащане') : 'Еднократно плащане');
   const row = (a, b, kind) => '<tr' + (kind ? ' class="' + kind + '"' : '') + '><td>' + a + '</td><td>' + b + '</td></tr>';
   const lbl = l => l.label + (l.sub ? '<small>' + l.sub + '</small>' : '');
   const coLogo = printCoLogo(m);
@@ -6939,8 +6967,15 @@ function printOffer() {
   calc += row('<b>' + (m.n > 1 ? 'Крайна обща премия' : 'Крайна премия') + '</b>', '<b>' + eur(m.total) + '</b>', 'tot');
   h += '<div class="ps-cols"><section class="ps-card"><h3><i>1</i>Параметри</h3><table class="ps-table ps-par">' + m.params.map(([a, b]) => row(a, esc(b).replace(/(Бул|Лев) Инс/g, '$1&nbsp;Инс').replace(/ г\./g, '&nbsp;г.'))).join('') + '</table></section>' +
     '<section class="ps-card"><h3><i>2</i>Изчисление</h3><table class="ps-table">' + calc + '</table></section></div>';
-  // Плащане
-  if (m.n > 1) h += '<section class="ps-card ps-instc"><h3><i>3</i>Плащане на ' + m.n + ' вноски без оскъпяване</h3><div class="ps-inst">' +
+  // Плащане: в Каско и Каско Избор – всички варианти (еднократно и на вноски), избраният е отбелязан
+  if (pv) {
+    h += '<section class="ps-card ps-instc"><h3><i>3</i>Варианти на плащане<small class="ps-h-note">първата вноска се плаща при сключване</small></h3><div class="ps-pays" style="--n:' + pv.length + '">' + pv.map(o => {
+      const d = one && o.n > 1 ? o.total - one.total : 0;
+      return '<div class="ps-po' + (o.n === m.n ? ' sel' : '') + '"><div class="ps-po-h"><span>' + (o.n === 1 ? 'Еднократно' : 'На ' + o.n + ' вноски') + '</span>' + (o.n === m.n ? '<i>избрано</i>' : '') + '</div>' +
+        '<b class="ps-po-t">' + eur(o.total) + '</b><small>' + (o.n === 1 ? 'плаща се наведнъж' : 'обща премия' + (d ? ', ' + (d > 0 ? '+' : '−') + eur(Math.abs(d)) + ' спрямо еднократно' : ', колкото при еднократно')) + '</small>' +
+        (o.n > 1 ? '<div class="ps-po-parts">' + o.parts.map((p, i) => '<div><span>' + ordinal(i) + '</span><span>' + eur(p) + '</span></div>').join('') + '</div>' : '') + '</div>';
+    }).join('') + '</div></section>';
+  } else if (m.n > 1) h += '<section class="ps-card ps-instc"><h3><i>3</i>Плащане на ' + m.n + ' вноски без оскъпяване</h3><div class="ps-inst">' +
     m.parts.map((p, i) => '<div><small>' + ordinal(i) + ' вноска' + (i === 0 ? ', при сключване' : '') + '</small><b>' + eur(p) + '</b></div>').join('') + '</div></section>';
   // Изисквания за защитно устройство (Каско)
   const req = (m.notes || []).filter(n => n.includes('🔒')).map(n => n.replace(/🔒\s*/, ''));
